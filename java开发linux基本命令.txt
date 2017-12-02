@@ -1,0 +1,50 @@
+#服务service
+
+#查看服务的状态
+service 服务名 status
+例如:
+service network status
+service iptables status
+#启动服务
+service 服务名 start
+例如:
+service network start
+service iptables start
+#停止服务
+service 服务名 stop
+例如:
+service network stop
+service iptables stop
+#重启服务
+service 服务名 restart
+例如:
+service network restart
+#linux中一切皆文件,服务相关的文件都存放在/etc/init.d/服务名
+#etc目录下存放的是配置信息
+例如: 
+vim /etc/init.d/iptables
+vim /etc/init.d/network
+#通过chkconfig命令设置自启动
+#查看服务chkconfig --list|grep 服务名
+#chkconfig --level 5 服务名 on/off
+#linux的运行级别
+#查看默认级别
+vim /etc/inittab
+#常用的是级别3和5
+#不能设置为2,6
+#linux运行级别
+0:系统停机状态，不能正常启动
+1:但用户状态，只能root权限登陆，禁止远程登陆
+2:多用户状态，不支持网络
+3:多用户状态，登录后进入控制台命令模式
+4:系统未使用,保留
+5:x11控制台，登录后进入图形gui模式，默认级别
+6:系统正常开启，然后自动关闭，重启，一直重复。
+
+
+#端口netstat
+-an 按一定顺序输出
+-p 显示进程
+查看那个进程占用了指定端口
+netstat -anp|grep 8080
+
