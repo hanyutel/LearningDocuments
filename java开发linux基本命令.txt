@@ -69,3 +69,21 @@ kill
 kill pid 通过pid杀死进程
 kill -9 pid 强制杀死进程
 killall name 通过进程的名字杀死进程
+
+#linux的运行级别runlevel
+查看linux的运行级别
+runlevel
+注意:
+我们最常使用的是3和5
+3是命令行窗口，
+5是x11有界面的
+不能设置为0和6，这样不能正常启动linux
+
+暂时切换linux的运行级别:重启以后回复默认 
+init 级别
+例如:init 3/init 5
+
+永久切换linux的运行级别:重启后生效
+vim /etc/inittab
+
+
