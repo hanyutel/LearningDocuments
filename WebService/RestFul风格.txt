@@ -1,0 +1,20 @@
+public class RestFulClient {
+	public static void main(String[] args) throws ClientProtocolException, IOException {
+		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		HttpPost httpPost = new HttpPost("http://192.168.19.74:9999/sms_test/sms");
+		List<NameValuePair> parameters = new ArrayList<>();
+		parameters.add(new BasicNameValuePair("phonenum", "13365494520"));
+		parameters.add(new BasicNameValuePair("msg", "李先生，你的快递到了，请到西街菜鸟驿站领取，单号:8565"));
+		HttpEntity httpEntity = new UrlEncodedFormEntity(parameters, "UTF-8");
+		httpPost.setEntity(httpEntity); 
+		HttpResponse httpResponse = httpClient.execute(httpPost);
+		HttpEntity entity = httpResponse.getEntity();
+		if(httpResponse.getStatusLine().getStatusCode()==HttpStatus.SC_OK) {
+			System.out.println(EntityUtils.toString(entity, "UTF-8"));
+		}else {
+			System.out.println("失败");
+		}
+		EntityUtils.consume(entity);
+		httpClient.close();
+	}
+}
