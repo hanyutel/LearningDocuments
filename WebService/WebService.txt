@@ -1,0 +1,13 @@
+WebService是一种跨编程语言和跨操作系统平台的远程调用技术。
+应用场景：各大网站集成支付宝功能，集成各个银行的网银功能。
+面向服务架构SOA
+WebService应用于不同系统、不同平台、不同语言之间的通信访问和远程调用
+应用程序的集成，不同业务的整合。
+
+WebService是一个应用程序，它向外界暴露出一个能够通过Web进行调用的方法的API，
+能用编程的方法通过Web调用来实现某个功能的相应程序
+
+WebService的两种类型:
+一种是SOAP风格---主流框架AXIS、xfire、cxf
+一种是RestFul风格---主流框架SpringMVC和SpringBoot的Feign
+
