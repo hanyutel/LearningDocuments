@@ -86,4 +86,42 @@ init 级别
 永久切换linux的运行级别:重启后生效
 vim /etc/inittab
 
+网络network
+桥接模式:客户机与主机的ip在同一个网段，外网可以访问客户机，与主机是同一个级别。
+NAT模式:客户机与主机单独开一个子网，这时主机在两个网段都有ip，客户机和主机可以单独通信，但是外网不能访问客户机。
+：修改linux的网络1、通过修改文件2、通过界面操作
+vim /etc/sysconfig/network-scripts/ifcfg-eth0
+修改完成后可以重启一下network的服务
+service network restart
+
+查找文件
+格式:find 路径  -name 文件名
+find ./ -name init.d 查看服务的配置信息,
+这里只是演示一下查文件，要想查看服务的方法还要加上服务名,
+例如
+cat /etc/init.d/network
+cat /etc/init.d/iptables
+find ./ -name ifcfg-eth0
+
+压缩文件
+两种类型:tar.gz和zip
+一般linux的压缩文件都是tar.gz
+压缩文件
+z:通过gzip过滤归档
+c:创建一个新的归档
+v:显示一个详细信息
+f:指定压缩后的文件名/指定要解压缩的文件名
+x:从归档中解出文件
+
+tar -zcvf xxx.tar.gz one.txt
+解压文件
+tar -zxvf xxx.tar.gz
+
+重要文件：
+/etc/inittab linux的默认运行级别配置文件
+/etc/sysconfig/network-script/ifcfg-eth0 网络配置文件
+
+
+
+
 
