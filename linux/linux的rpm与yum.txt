@@ -1,0 +1,20 @@
+查找已经安装的工具（可以执行的）
+rpm -qa
+rpm -qa|grep firefox
+卸载掉该工具软件
+rpm -e firefox
+安装该工具
+首先找到安装的包
+在/media/CentOS_6.8_Final/Packages
+media是存放光驱的，Packages里面存放了安装包
+ls -al|grep firefox
+
+firefox-45.0.1-1.el6.centos.x86_64.rpm
+el6代表centos的某一版本
+el6.centos.x86_64代表centos的64位,如果是i686、i386表示32位系统，noarch表示通用
+然后安装该rpm
+rpm -ivh firefox-45.0.1-1.el6.centos.x86_64.rpm
+
+yum类似与maven，不需要rpm安装包,从网上自动下载安装
+yum list|grep firefox 查看安装版本
+yum install firefox 不许要选择版本，自动匹配版本
