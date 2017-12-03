@@ -1,0 +1,27 @@
+#端口netstat
+-an 按一定顺序输出
+-p 显示进程
+查看那个进程占用了指定端口
+netstat -anp|grep 8080
+
+#进程ps
+ps -a全部的
+ps -u用户的格式显示
+ps -x显示参数
+查看java相关进程，可以查看
+%CPU:进程占用CPU的百分比
+%MEM:进程占用物理内存的百分比
+VSZ:进程占用的虚拟内存大小
+RSS:进程占用的物理内存大小
+ps -aux|grep java
+
+查看java进程的pid和ppid，这样我们可以根据pid杀死该进程
+ps -ef|grep java
+-e：所有进程
+-f:全格式
+
+杀死进程
+kill
+kill pid 通过pid杀死进程
+kill -9 pid 强制杀死进程
+killall name 通过进程的名字杀死进程

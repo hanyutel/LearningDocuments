@@ -1,0 +1,16 @@
+一般查找find
+
+格式:find 路径 ?-name 文件名
+find ./ -name init.d 查看服务的配置信息,
+这里只是演示一下查文件，要想查看服务的方法还要加上服务名,
+例如
+cat /etc/init.d/network
+cat /etc/init.d/iptables
+find ./ -name ifcfg-eth0
+模糊查找
+find ./ -name network-sc*
+./etc/sysconfig/network-scripts
+
+快速查找localte
+从根目录根据索引查找，linux在特定时间里会给每个文件分配索引
+如果没有分配索引，使用updatedb来执行给文件分配索引的动作
