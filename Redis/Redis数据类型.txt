@@ -1,0 +1,127 @@
+端口:6379是Reids创始人意大利人调侃一名女星的。
+默认是16个数据库，使用select dbid来切换数据库
+select 1
+keys *
+
+一般我们只用0号库
+Reids是单线程+多路io复用
+membcached是多线程+锁
+
+Redis数据类型:
+key +String、set、list、hash、zset
+
+查询key:keys *
+keys *
+keys k*
+keys *1
+查看key是否存在:exists key
+查看类型:type k1
+lpush l1 v1 v2
+type l1
+设置过期时间:expire key seconds(秒)
+time to level生存时间:ttl key
+-1永不过期
+-2过期了
+
+dbsize当前数据库的大小
+flushdb清空当前库
+flushall清空所有库
+
+
+数据类型
+String是Redis最基本的类型，是二进制安全的。意味着Redis的
+String可以包含任何数据。例如jpg图片或者序列化对象，相关序列化
+技术:json、base64
+
+get key查询
+set key value添加
+
+append key value 追加
+
+strlen key长度
+setnx key value设置不存再的key,如果已经存在就无效
+incr key
+decr key
+incrb/decrb key
+mset k1 v1 k2 v2
+mget k1 k2 k3
+msetnx k1 v1 k10 v10 k1000 v1000
+getrange key 起始位置 结束位置
+类似于substring但是不同的是包头还包尾
+setrange key 起始位置 内容
+setex key 过期时间 value
+getset key 内容：以新换旧，显示旧值
+
+数据类型list
+ArrayList是数组，LinkedList是双向链表，但是操作不支持双向，
+我们redis中的list支持双向操作。按照栈的顺序存储。
+lpush key value...从左边进
+rpush key value...
+lpush l1 1 2 3 4 5
+lpop key从左边吐出一个
+lpop l1吐出5
+rpop l1吐出1
+
+如果继续往外吐，吐完之后key就会消失，值在键在，值光键亡
+右边出左边进
+rpoplpush
+按照索引往外取，从左往右
+lrange list1 1 3
+lrange list1 0 -1取全部
+lindex list 1
+llen list1 长度
+linsert list before 4 A插入到4之前
+lrem list1 2 A从左边删除2个A
+
+数据类型set
+sadd key value1 value2...
+smembers s1取出集合
+sismember s1 v1
+scard key返回集合元素的个数
+srem key value1 value2...删除某个元素
+spop s1随机吐出
+srandmember key 随机取出，不是吐出 
+sinter交集
+sunion并集
+sdiff差集
+
+数据类型hash
+类似于hashMap
+k->v(k->v)
+hash是一个string类型的field和value的映射表，特别适合存
+对象。
+redis存储对象的方式
+①：key ->json:序列化和反序列化耗性能
+序列化Object>json
+反序列化json>Object
+②：key可以起名为（对象id:属性名）:
+数据变多
+③：hash
+customer:0101
+		name zhangsan
+		balance 1000
+		city bj
+
+hset key field value
+给key集合中的field键赋值value
+hget key field
+hmset key field value ...
+hexists key field查看哈希表key中，field是否存在
+hkeys
+hvals
+hincrby
+hsetnx
+
+数据结构zset:sorted set
+类似于TreeSet，通过compleable排序
+通过score来排序，
+zadd key score1 value1...
+zadd z1 100 v1 200 v2 80 v3
+zrange z1 0 -1
+zrangebyscore key min max按照值的范围取
+zrevrangebyscore key max min
+zincrby z1 1000 v1给评分加多少
+zcount z1 100 10000
+zrank z1 v3取排名
+zrevrange art_top 0 9取前十score
+zrevrange art_top 0 9 withscores
