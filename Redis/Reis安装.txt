@@ -31,9 +31,15 @@ ping
 set k1 v1
 set k2 v2
 keys *
-关闭shutdown
+在client中：关闭shutdown
 
-redis-cli shutdown利用客户端将服务器关闭。
+不在client里:redis-cli shutdown利用客户端将服务器关闭。
+
+如果有密码：想要在redis-cli外面关闭redis-server，使用
+redis-cli -a wcx shutdown
+登陆reids-cli后，如果要进行操作，要先登陆:auth wcx
+
+
 
 
 
