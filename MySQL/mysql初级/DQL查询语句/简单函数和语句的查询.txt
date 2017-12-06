@@ -1,0 +1,32 @@
+已知表 stuinfo
+id 	学号
+name 	姓名
+email 	邮箱
+gradeId 年级编号
+sex 	性别
+age 	年龄
+
+已知表 grade
+id 		年级编号
+gradeName 	年级名称
+
+①：查询所有学员的邮箱的用户名(注：邮箱中@前面的字符)
+select substr(email,1,instr(email,'@')-1) from stuinfo
+②：查询男生和女生的个数
+select sex,count(*) from stuinfo group by sex
+③：查询年龄>18岁的所有学生的姓名和年级名称
+select stuinfo.name,grade.gradeName 
+from stuinfo 
+inner join grade
+on stuinfo.gradeId=grade.id
+where stuinfo.age>18
+④：查询那个年级编号的学生最小年龄>20岁
+select gradeId,MIN(age) 
+from stuinfo
+group by gradeId
+having min(age)>20
+
+⑤：试写出三种常见的数学函数
+round
+ceil
+floor

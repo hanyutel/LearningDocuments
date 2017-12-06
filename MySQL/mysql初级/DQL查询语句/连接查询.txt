@@ -1,0 +1,114 @@
+连接查询
+含义：当查询语句中用到了多个表中的字段，这个时候可以用多表连接
+stuinfo表
+id name sex grade
+1  john 女  一年级
+2  lucy 女  一年级
+
+数据冗余，grade字段重复太多，占用字节太大。
+
+所以把年级单独拆成一个表：分类存储
+grade表(年级表)
+id gradeName
+1 一年级
+2 二年级
+
+stuinfo表中存储1，2比存储一年级好多了。
+
+笛卡尔乘积：
+当多个表没有有效的连接条件，则多个表之间实现所有行互相连接，导致结果集
+的行数为多表行数的乘积。
+
+连接语法：
+*****************************************************************
+sql92语法:
+
+等值连接
+
+select 字段1,...
+from 表1，表2，...
+where 连接条件
+and 筛选条件
+特点
+①：不分主次表，多个表的顺序可以调换
+②：n表连接，至少需要n-1个连接条件
+③：等值连接，一般查询结果为多表的交集部分
+④：一般为表起别名，提高语句的简洁度和性能
+⑤：可以搭配分组、筛选、排序使用
+
+非等值连接
+
+select 字段1,...
+from 表1，表2，...
+where 连接条件（条件的运算符不是=）
+and 筛选条件
+**************************************************************
+sql99语法：
+
+支持：等值连接、非等值连接（内连接）
+外连接
+交叉连接
+
+语法
+select 字段...
+from 表1
+【inner|left outer|right outer|cross】 join 表2 on 连接条件
+【inner|left outer|right outer|cross】 join 表3 on 连接条件
+where ...
+goup by ...
+having ...
+order by...
+
+内连接好处：
+筛选条件和连接条件分离，简洁明了。
+
+非等值连接：
+
+查询工资级别为A、C、D的员工的工资和工资级别
+SELECT grades_level,salary
+FROM employees e
+JOIN job_grades g 
+ON e.salary BETWEEN g.lowest_sal AND g.highest_sal
+WHERE g.grades_level IN ('A','C','D');
+
+外连接：
+左外连接
+右外连接
+全外连接 full outer join mysql不支持
+
+配合is not null/is null使用
+
+自连接：
+把一个表当作多个表使用
+
+查询员工名和直接上级的名称
+
+employees 
+	list_name
+	manager_id
+
+案例:
+select e.last_name,m.last_name
+from employees e
+join employees m 
+on e.manager_id=m.employee_id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

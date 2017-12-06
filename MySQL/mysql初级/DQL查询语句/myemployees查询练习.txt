@@ -1,0 +1,67 @@
+①：显示所有员工的姓名，部门号和部门名称
+use myemployees;
+
+select last_name,d.department_id,department_name
+from employees e,departments d
+where e.department_id=d.department_id;
+
+②：查询90号部门员工的job_id和90号部门的location_id
+
+SELECT employees.`job_id`,departments.`location_id`
+FROM employees INNER JOIN departments 
+ON employees.`department_id`=departments.`department_id`
+WHERE employees.`department_id`=90
+
+使用join不能使用别名
+
+③：所有有奖金的员工的last_name,department_name,location_id,city
+
+SELECT last_name,department_name,departments.`location_id`,city
+FROM employees 
+INNER JOIN departments ON employees.`department_id`=departments.`department_id`
+INNER JOIN locations ON departments.`location_id`=locations.`location_id`
+WHERE employees.`commission_pct` IS NOT NULL
+
+④：查询每个工种、每个部门的部门名、工种名和最低工资
+
+SELECT departments.`department_name`,jobs.`job_title`,MIN(employees.`salary`)
+FROM employees
+INNER JOIN jobs
+ON employees.`job_id`=jobs.`job_id`
+INNER JOIN departments 
+ON employees.`department_id`=departments.`department_id`
+GROUP BY departments.`department_id`,jobs.`job_id`
+
+⑤：查询每个国家下的部门个数大于2的国家编号
+
+SELECT  departments.`department_id`,locations.`country_id`
+FROM departments
+INNER JOIN locations
+ON departments.`location_id`=locations.`location_id`
+GROUP BY locations.`country_id`
+HAVING COUNT(departments.`department_id`)>2
+
+遇到这样的复杂多表连接和分组查询结合的情况可以先不分组，然后再分组。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

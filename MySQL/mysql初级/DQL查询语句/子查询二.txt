@@ -1,0 +1,118 @@
+①：查询与Zlotkey相同部门的员工姓名和工资
+
+	SELECT last_name,salary
+	FROM employees
+	WHERE department_id=
+	(
+		SELECT department_id
+		FROM employees
+		WHERE last_name='Zlotkey'
+	)
+
+
+②：查询工资比公司平均工资高的员工的员工号，姓名和工资
+
+
+	SELECT employee_id,last_name,salary
+	FROM employees
+	WHERE salary>
+	(
+		SELECT AVG(salary)
+		FROM employees
+	)
+
+③：查询各部门中工资比本部门平均工资高的员工的员工号，姓名和工资
+
+	错误案例：
+	SELECT employee_id,last_name,salary
+	FROM employees
+	GROUP BY department_id
+	HAVING salary>
+	(
+		SELECT AVG(salary)
+		FROM employees
+		GROUP BY department_id
+	)
+	正确案例：
+
+	SELECT employee_id,last_name,salary
+	FROM employees
+	INNER JOIN 
+	(
+
+		SELECT AVG(salary) av,department_id
+		FROM employees
+		GROUP BY department_id
+	) a
+	ON employees.`department_id`=a.department_id
+	WHERE employees.salary>a.av
+
+④：查询和姓名中包含字母u的员工在相同部门的员工的员工号和姓名
+
+	SELECT employee_id,last_name
+	FROM employees
+	WHERE department_id IN
+	(
+		SELECT DISTINCT department_id
+		FROM employees
+		WHERE last_name LIKE '%u%'
+	)
+
+⑤：查询在部门的location_id为1700的部门工作的员工的员工号
+
+	SELECT employee_id
+	FROM employees
+	WHERE department_id IN
+	(
+		SELECT department_id
+		FROM departments
+		WHERE location_id=1700
+	)
+
+⑥：查询管理者是King的员工姓名和工资
+
+方法一：
+	SELECT last_name,salary
+	FROM employees
+	WHERE manager_id IN
+	(
+		SELECT employee_id
+		FROM employees
+		WHERE last_name='King'
+	)
+
+方法二：
+	SELECT last_name,salary
+	FROM employees a
+	JOIN
+	(
+		SELECT employee_id
+		FROM employees
+		WHERE last_name='King'
+	) b
+	ON a.`manager_id`=b.employee_id
+
+方法三：
+	把 a当作完整的表，把b当作没有manager_id的表，
+	让a的manager_id=b的employee_id
+	然后取出a的last_name(员工姓名)
+	从b中取出last_name(管理者姓名)
+
+	SELECT a.employee_id,a.last_name,b.last_name
+	FROM employees a
+	JOIN employees b
+	ON a.manager_id=b.employee_id
+	WHERE b.last_name='King'
+
+
+⑦：查询工资最高的员工的姓名，要求first_name和last_name显示为一列，列名为姓.名
+
+	SELECT CONCAT(first_name,'.',last_name) "姓名"
+	FROM employees
+	WHERE salary=
+	(
+		SELECT MAX(salary) 
+		FROM employees
+	)
+
+
