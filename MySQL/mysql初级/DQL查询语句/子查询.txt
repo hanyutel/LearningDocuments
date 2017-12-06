@@ -1,157 +1,157 @@
-×Ó²éÑ¯
-º¬Òå£ºÒ»Ìõ²éÑ¯Óï¾äÖĞÓÖÇ¶Ì×ÁËÁíÒ»ÌõÍêÕûµÄselectÓï¾ä£¬ÆäÖĞ±»
-Ç¶Ì×µÄselectÓï¾ä£¬³ÆÎª×Ó²éÑ¯»òÄÚ²éÑ¯¡£
-ÔÚÍâÃæµÄ²éÑ¯Óï¾ä³ÆÎªÖ÷²éÑ¯»òÍâ²éÑ¯¡£
+å­æŸ¥è¯¢
+å«ä¹‰ï¼šä¸€æ¡æŸ¥è¯¢è¯­å¥ä¸­åˆåµŒå¥—äº†å¦ä¸€æ¡å®Œæ•´çš„selectè¯­å¥ï¼Œå…¶ä¸­è¢«
+åµŒå¥—çš„selectè¯­å¥ï¼Œç§°ä¸ºå­æŸ¥è¯¢æˆ–å†…æŸ¥è¯¢ã€‚
+åœ¨å¤–é¢çš„æŸ¥è¯¢è¯­å¥ç§°ä¸ºä¸»æŸ¥è¯¢æˆ–å¤–æŸ¥è¯¢ã€‚
 
-²éÑ¯location_id=1700µÄÔ±¹¤ĞÕÃû
+ä¸€ã€æŸ¥è¯¢location_id=1700çš„å‘˜å·¥å§“å
 
-SELECT e.`first_name`
-FROM employees e 
-INNER JOIN departments d
-ON e.`department_id`=d.`department_id`
-WHERE d.`location_id`=1700
+	SELECT e.`first_name`
+	FROM employees e 
+	INNER JOIN departments d
+	ON e.`department_id`=d.`department_id`
+	WHERE d.`location_id`=1700
 
 
-SELECT employees.`first_name`
-FROM employees
-WHERE employees.`department_id` IN
-(
-SELECT departments.`department_id`
-FROM departments 
-WHERE departments.`location_id`=1700
-)
-
-ÌØµã£º
-
-×Ó²éÑ¯¶¼·ÅÔÚĞ¡À¨ºÅÄÚ
-×Ó²éÑ¯Ò»°ã·ÅÔÚÖ÷²éÑ¯Ìõ¼şµÄÓÒ²à	³äµ±Ìõ¼ş
-Ò²¿ÉÒÔ·ÅÔÚfromºóÃæ		³äµ±±í
-»òÕßselectµÄºóÃæ		
-/havingºóÃæ			³äµ±Ìõ¼ş
-
-×Ó²éÑ¯ÓÅÏÈÓÚÖ÷²éÑ¯£¬Ö÷²éÑ¯Ê¹ÓÃÁË×Ó²éÑ¯µÄÖ´ĞĞ½á¹û
-¢Ù£ºµ¥ĞĞ×Ó²éÑ¯
-	½á¹û¼¯Ö»ÓĞÒ»ĞĞ,Ò»°ãÅäºÏµ¥ĞĞ²Ù×÷·ûÊ¹ÓÃ£º> < = <> >= <=
-¢Ú£º¶àĞĞ×Ó²éÑ¯
-	½á¹û¼¯ÓĞ¶àĞĞ,Ò»°ãÅäºÏ¶àĞĞ²Ù×÷·ûÊ¹ÓÃ:any all in ¡¢not in
-
-µ¥ĞĞ×Ó²éÑ¯£º
-Ë­µÄ¹¤×Ê±ÈAbel¸ß
-SELECT last_name
-FROM employees 
-WHERE salary >
-(
-SELECT salary
-FROM employees
-WHERE last_name='Abel'
-)
-
-job_idÓë141ºÅÔ±¹¤ÏàÍ¬£¬salary±È143ºÅÔ±¹¤¶àµÄÔ±¹¤µÄĞÕÃû£¬job_idºÍ¹¤×Ê
-
-SELECT first_name
-FROM employees 
-WHERE job_id=
-(
-SELECT job_id
-FROM employees
-WHERE employee_id=141
-)
-AND salary>
-(
-SELECT salary
-FROM employees
-WHERE employee_id=143
-)
-
-·µ»Ø¹«Ë¾¹¤×Ê×îÉÙµÄÔ±¹¤µÄlast_name,job_idºÍsalary
-
-SELECT employees.`last_name`,employees.`job_id`,employees.`email`
-FROM employees 
-INNER JOIN jobs 
-ON employees.`job_id`=jobs.`job_id`
-WHERE employee_id=
-(
-	SELECT employee_id
+	SELECT employees.`first_name`
 	FROM employees
-	WHERE salary=
+	WHERE employees.`department_id` IN
+	(
+		SELECT departments.`department_id`
+		FROM departments 
+		WHERE departments.`location_id`=1700
+	)
+
+ç‰¹ç‚¹ï¼š
+
+å­æŸ¥è¯¢éƒ½æ”¾åœ¨å°æ‹¬å·å†…
+å­æŸ¥è¯¢ä¸€èˆ¬æ”¾åœ¨ä¸»æŸ¥è¯¢æ¡ä»¶çš„å³ä¾§	å……å½“æ¡ä»¶
+ä¹Ÿå¯ä»¥æ”¾åœ¨fromåé¢		å……å½“è¡¨
+æˆ–è€…selectçš„åé¢		
+/havingåé¢			å……å½“æ¡ä»¶
+
+å­æŸ¥è¯¢ä¼˜å…ˆäºä¸»æŸ¥è¯¢ï¼Œä¸»æŸ¥è¯¢ä½¿ç”¨äº†å­æŸ¥è¯¢çš„æ‰§è¡Œç»“æœ
+â‘ ï¼šå•è¡Œå­æŸ¥è¯¢
+	ç»“æœé›†åªæœ‰ä¸€è¡Œ,ä¸€èˆ¬é…åˆå•è¡Œæ“ä½œç¬¦ä½¿ç”¨ï¼š> < = <> >= <=
+â‘¡ï¼šå¤šè¡Œå­æŸ¥è¯¢
+	ç»“æœé›†æœ‰å¤šè¡Œ,ä¸€èˆ¬é…åˆå¤šè¡Œæ“ä½œç¬¦ä½¿ç”¨:any all in ã€not in
+
+å•è¡Œå­æŸ¥è¯¢ï¼š
+
+äºŒã€è°çš„å·¥èµ„æ¯”Abelé«˜
+	SELECT last_name
+	FROM employees 
+	WHERE salary >
+	(
+	SELECT salary
+	FROM employees
+	WHERE last_name='Abel'
+	)
+
+ä¸‰ã€job_idä¸141å·å‘˜å·¥ç›¸åŒï¼Œsalaryæ¯”143å·å‘˜å·¥å¤šçš„å‘˜å·¥çš„å§“åï¼Œjob_idå’Œå·¥èµ„
+
+	SELECT first_name
+	FROM employees 
+	WHERE job_id=
+	(
+	SELECT job_id
+	FROM employees
+	WHERE employee_id=141
+	)
+	AND salary>
+	(
+	SELECT salary
+	FROM employees
+	WHERE employee_id=143
+	)
+
+å››ã€è¿”å›å…¬å¸å·¥èµ„æœ€å°‘çš„å‘˜å·¥çš„last_name,job_idå’Œsalary
+
+	SELECT employees.`last_name`,employees.`job_id`,employees.`email`
+	FROM employees 
+	INNER JOIN jobs 
+	ON employees.`job_id`=jobs.`job_id`
+	WHERE employee_id=
+	(
+		SELECT employee_id
+		FROM employees
+		WHERE salary=
+		(
+			SELECT MIN(salary)
+			FROM employees
+		)
+	)
+
+äº”ã€æŸ¥è¯¢æœ€ä½å·¥èµ„å¤§äº50å·éƒ¨é—¨æœ€ä½å·¥èµ„çš„éƒ¨é—¨ idå’Œæœ€ä½å·¥èµ„
+
+	SELECT MIN(salary),employees.`department_id`
+	FROM employees
+	GROUP BY employees.`department_id`
+	HAVING MIN(salary)>
 	(
 		SELECT MIN(salary)
-		FROM employees
+		FROM departments 
+		INNER JOIN employees
+		ON employees.`department_id`=departments.`department_id`
+		WHERE employees.`department_id`=50
 	)
-)
 
-²éÑ¯×îµÍ¹¤×Ê´óÓÚ50ºÅ²¿ÃÅ×îµÍ¹¤×ÊµÄ²¿ÃÅ idºÍ×îµÍ¹¤×Ê
+éæ³•ä½¿ç”¨å­æŸ¥è¯¢ï¼š
+å¤šè¡Œå­æŸ¥è¯¢ä½¿ç”¨å•è¡Œæ¯”è¾ƒç¬¦
+å­æŸ¥è¯¢ä¸è¿”å›ä»»ä½•è¡Œ
 
-SELECT MIN(salary),employees.`department_id`
-FROM employees
-GROUP BY employees.`department_id`
-HAVING MIN(salary)>
-(
-	SELECT MIN(salary)
-	FROM departments 
-	INNER JOIN employees
-	ON employees.`department_id`=departments.`department_id`
-	WHERE employees.`department_id`=50
-)
+å¤šè¡Œå­æŸ¥è¯¢ï¼š
 
-·Ç·¨Ê¹ÓÃ×Ó²éÑ¯£º
-¶àĞĞ×Ó²éÑ¯Ê¹ÓÃµ¥ĞĞ±È½Ï·û
-×Ó²éÑ¯²»·µ»ØÈÎºÎĞĞ
-
-¶àĞĞ×Ó²éÑ¯£º
-
-¶àĞĞ±È½Ï²Ù×÷·û
+å¤šè¡Œæ¯”è¾ƒæ“ä½œç¬¦
 in / not in
-any|some ´îÅä= ¡¢>µÈ
-all ´îÅä=¡¢>µÈ
+any|some æ­é…= ã€>ç­‰
+all æ­é…=ã€>ç­‰
 
-²éÑ¯location_idÊÇ1400»ò1700µÄ²¿ÃÅ±àºÅ
-
-
-SELECT last_name
-FROM employees
-WHERE employee_id IN
-(
-	SELECT distinct department_id
-	FROM departments
-	WHERE departments.`location_id` IN (1400,1700)
-)
-
-²éÑ¯ÆäËû²¿ÃÅÖĞ±Èjob_idÎª'IT_PROG'²¿ÃÅÈÎÒ»¹¤×ÊµÍµÄÔ±¹¤µÄÔ±¹¤ºÅ¡¢
-ĞÕÃû¡¢job_idÒÔ¼°salary
+å…­ã€æŸ¥è¯¢location_idæ˜¯1400æˆ–1700çš„éƒ¨é—¨ç¼–å·
 
 
-
-SELECT employee_id,salary,department_id
-FROM employees
-WHERE department_id <>
-(
-	SELECT DISTINCT department_id
+	SELECT last_name
 	FROM employees
-	WHERE employees.`job_id`='IT_PROG'
-)
-AND salary <ANY
-(
-	SELECT DISTINCT salary
+	WHERE employee_id IN
+	(
+		SELECT distinct department_id
+		FROM departments
+		WHERE departments.`location_id` IN (1400,1700)
+	)
+
+ä¸ƒã€æŸ¥è¯¢å…¶ä»–éƒ¨é—¨ä¸­æ¯”job_idä¸º'IT_PROG'éƒ¨é—¨ä»»ä¸€å·¥èµ„ä½çš„å‘˜å·¥çš„å‘˜å·¥å·ã€å§“åã€job_idä»¥åŠsalary
+
+
+
+	SELECT employee_id,salary,department_id
 	FROM employees
-	WHERE employees.`job_id`='IT_PROG'
-)
+	WHERE department_id <>
+	(
+		SELECT DISTINCT department_id
+		FROM employees
+		WHERE employees.`job_id`='IT_PROG'
+	)
+	AND salary <ANY
+	(
+		SELECT DISTINCT salary
+		FROM employees
+		WHERE employees.`job_id`='IT_PROG'
+	)
 
-ÕâÀïµÄ!=²»ÄÜÊ¹ÓÃ£¬ÒòÎªdepartment_idÖĞÓĞÎªnullµÄÇé¿ö
-ÈÎÒ»²»ÊÇÈÎÒâ£¬ÈÎÒâÊÇËùÓĞ£¬ÈÎÒ»ÊÇÈÎºÎÒ»¸ö¶¼¿ÉÒÔ
+è¿™é‡Œçš„!=ä¸èƒ½ä½¿ç”¨ï¼Œå› ä¸ºdepartment_idä¸­æœ‰ä¸ºnullçš„æƒ…å†µ
+ä»»ä¸€ä¸æ˜¯ä»»æ„ï¼Œä»»æ„æ˜¯æ‰€æœ‰ï¼Œä»»ä¸€æ˜¯ä»»ä½•ä¸€ä¸ªéƒ½å¯ä»¥
 
-ÏÂÃæÕâÖÖÊÇ²»¿¼ÂÇÆäËü²¿ÃÅÖĞÓĞ²¿ÃÅÎªnullµÄÇé¿ö
+ä¸‹é¢è¿™ç§æ˜¯ä¸è€ƒè™‘å…¶å®ƒéƒ¨é—¨ä¸­æœ‰éƒ¨é—¨ä¸ºnullçš„æƒ…å†µ
 
-SELECT employee_id,salary,department_id
-FROM employees
-WHERE job_id <>
-'IT_PROG'
-AND salary <ANY
-(
-	SELECT DISTINCT salary
+	SELECT employee_id,salary,department_id
 	FROM employees
-	WHERE employees.`job_id`='IT_PROG'
-)
+	WHERE job_id <>
+	'IT_PROG'
+	AND salary <ANY
+	(
+		SELECT DISTINCT salary
+		FROM employees
+		WHERE employees.`job_id`='IT_PROG'
+	)
 
 
 
