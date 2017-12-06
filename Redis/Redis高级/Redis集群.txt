@@ -1,0 +1,234 @@
+主从复制也是一种简单的集群
+集群可以解决主从复制也解决不了的问题：
+例如：
+
+问题一：
+一主多从
+每一份副本都是一份完整的数据，无论如何都不能超过单台机子
+的容量。每台机子上都要存放一份完整的数据，超出单台机子的
+内存容量怎么办？
+
+问题二：
+主机承担写的操作，从机承担读的操作。如果写的操作也很多怎么
+办？
+
+我们可以将一份数据给拆分成多份。
+例如：
+customer 放一个机子
+order 放一个机子
+product 放一个机子
+
+容量不够，redis如何进行扩容？
+并发写操作,redis如何分摊？
+
+应用程序要维护一个清单，来判断要访问那个机子来操作我的
+数据。这个问题有proxy服务器来解决。
+
+以后java只要知道proxy服务器就可以了，由proxy来维护一个
+清单，由它去选择操作那个服务器。
+
+java程序对Proxy服务器是单点架构，如果宕机就完了，所以
+要对Proxy服务器进行备份，然后使用keeplived进行监听，
+随时把从Proxy服务器转为主的。
+
+proxy服务器：
+
+twemproxy	推特出的产品
+codis		豌豆荚的产品
+
+redis3.0之后推出了一款解决方案
+redis-cluster 
+
+不过它不是用中间件代理(Proxy)解决的，而是采用P2P对等网络
+的方式解决的。
+
+对等网络，即对等计算机网络，是一种在对等者（Peer）之间
+分配任务和工作负载的分布式应用架构[1]  ，是对等计算模型
+在应用层形成的一种组网或网络形式。
+
+
+存放被拆分数据的不同机子练成一个网，java程序直接访问其中
+一个机子，然后多个机子商议判断后再选择性操作。
+
+p2p也称无中心化结构
+
+搭建集群:
+
+
+ruby也是一种编程语言,要运行ruby就要安装环境
+redis提供ruby脚本可以帮助我们搭建集群
+
+安装ruby环境
+1、依次执行在安装光盘下的Package目录
+(/media/CentOS_6.8_Final/Packages)下的rpm包：
+
+执行rpm -ivh compat-readline5-5.2-17.1.el6.x86_64.rpm
+执行rpm -ivh ruby-libs-1.8.7.374-4.el6_6.x86_64.rpm
+执行rpm -ivh ruby-1.8.7.374-4.el6_6.x86_64.rpm
+执行rpm -ivh ruby-irb-1.8.7.374-4.el6_6.x86_64.rpm
+执行rpm -ivh ruby-rdoc-1.8.7.374-4.el6_6.x86_64.rpm
+执行rpm -ivh rubygems-1.3.7-5.el6.noarch.rpm
+
+如果之前启动了reids-server和redis-sentinel的话，就先关了。
+killall -9 redis-server
+killall -9 redis-sentinel
+
+一共是6个，都安装完成后，还要安装redis.gem
+redis.gem
+ruby操作集群，但是ruby不能操作redis集群，还要使用redis插件
+redis.gem
+
+把redis.gem放到opt下
+gem install --local redis-3.2.0.gem
+
+搭建集群
+cd /myredis
+
+rm -rvf dump63* 删除之前的日志文件
+
+修改配置文件
+vim redis6379.conf
+哨兵生成的东西删除
+还有：
+include /myredis/redis.conf
+port 6379
+pidfile "/var/run/redis_6379.pid"
+dbfilename "dump6379.rdb"
+
+增加
+cluster-enabled yes 开启集群
+cluster-config-file nodes-6379.conf 关联文件
+cluster-node-timeout 15000 超时时间15秒
+
+cp redis6379.conf redis6380.conf
+cp redis6379.conf redis6381.conf
+cp redis6379.conf redis6389.conf
+cp redis6379.conf redis6390.conf
+cp redis6379.conf redis6391.conf
+
+改一下配置
+例如：
+:%s/6379/6380
+
+把6个redis都开启
+
+查看
+ps -ef|grep redis
+6个redis都已经开启，但是还没有搭集群
+cluster代表开启了集群，但是还没合体
+
+执行ruby脚本，将集群合体。
+
+cd redis-3.2.5
+cd src
+redis-trib.rb ruby脚本
+
+执行ruby脚本:就在src目录里执行
+
+./redis-trib.rb create --replicas 1 192.168.67.153:6379
+192.168.67.153:6380 192.168.67.153:6381 192.168.67.153:6389
+192.168.67.153:6390 192.168.67.153:6391 
+
+最后显示all 16384 slots covered.
+slots被覆盖了
+
+redis-cli
+set k1 v1 报错error moved 12706 ip:port...
+cluster nodes
+可以看出三主三从，还可以看出主从关系
+
+一个集群至少有三个主节点。
+头三台肯定是主节点
+
+选项--replicas 1表示我们希望为集群中的每个主节点创建一个
+从节点。
+正好我们还有3个机子，符合这个要求，所以出现了三主三从。
+
+分配原则尽量保证每个主数据库运行再不同的ip地址，每个从
+数据库和主库不在一个ip地址上。
+所以我们的ip/port尽量岔开分配主从
+
+之前我们
+set k1 v1 报错是什么原因？error moved 12706 ip:port
+
+slots插槽
+之前的16384还记得吧？
+搭建集群时，把16384平均的分配到三个主节点上。
+主节点1：0-5460
+主节点2：5461-10922
+主节点3：10923-16383
+0-16383就是16384个数
+扩展:
+hashMap
+默认16个长度，为什么要分成16个？
+hash是干什么用的？
+集群和hash的道理是一样的，所谓hash(散列)，就是hash码（散列
+码）
+hashMap是个容器，它希望数据都尽量均匀的分配到容器中，
+不均匀会出现在一个格（节点）中会出现碰撞（链表），还
+可能变成树，会影响查询速度。
+所以尽量均匀分配，最简单的方式，随机产生一个数就行了，
+为什么还好算hash值，因为随机数是无法确定的，但是hash
+值是可以确定的，下一次要查找的时候，直接根据hash值还
+能找到。
+hash值虽然是比较散列，比较随机，但是每次算的值是一样的。
+只要你的key值是不变的，最后我用key算出hash值，把一个字符串
+变成了一个数字，再用数字取一下长度的模，就能固定找到你存
+的数据。
+
+一个Redis集群包含16384个插槽hash slot,数据库中的每个键都
+属于这16384个插槽的其中一个，集群使用公式CRC16(key)%16384
+来计算键key属于那个槽，其中CRC16(key)语句用于计算键key的
+CRC16校验和。
+集群中的每个节点处理一部分插槽。举个例子，如果一个集群
+可以有主节点，其中：
+节点A负责处理0号至5500号插槽。
+节点B负责处理5501号至11000号插槽。
+节点C负责处理11001号至16383号插槽。
+
+set k1 v1报错提示谁负责?ip:port
+12706就是，拿k1算hash值， 又用hash值去跟16384取模，得到
+12706，不是我当前的插槽范围，是另外一个插槽范围。
+不符合集群
+
+必须要这样开启，才不会出现上面的错误。
+
+redis-cli -c
+
+简单操作，自动根据算出的hash%16384的值分配是那台机子。
+但是mset k1 v1 k2 v2 k3 v3
+报错don't hash to the same slot不在一台机子上，不知道怎么执行
+mset k1{customer} v1 k2{customer} v2 k3{customer} v3就可以了
+当它发现你的key中有{ }的时候，它会拿你大括号里面的内容去
+取hash值，所以我们取出的hash值一样，就是插槽一样，所以
+机器就一样。
+
+cluster keyslot k1{customer} 查你的插槽
+cluster keyslot customer
+cluster countkeysinslot 6651 查你插槽里有多少key
+cluster getkeysinslot 6651 100 取你插槽里的100个数
+
+如果主节点下线，从节点能否自动升为主节点？
+主节点恢复后，主从关系是什么？
+
+
+cluster-require-full-coverage yes对数据完整性比较高
+
+
+如果又加一个机子，16384个槽是不会变的，会把其它的机子上的槽分给它。
+一个槽能放未知个数的key
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,176 @@
+主从复制是重点
+主从复制，就是主机数据更新后根据配置和策略，自动同步到
+备机的master/slaver机制，master以写为主，slave以读为主
+
+用处：
+读写分离，性能扩展
+容灾快速恢复
+
+应用---写--->主
+	       
+               --复制-->从1
+
+    ----------读--------从1
+
+	       --复制-->从2
+
+    ----------读--------从2
+
+	       --复制-->从3
+
+    ----------读--------从3
+
+从机的数据与主机的数据一样
+如果主机宕机，从机可以顶上
+主从复制比持久化从性能上好，因为持久化是数据从内存往磁盘上
+写，主从复制是从内存到另一台机子的内存。
+主从复制比较花钱。内存太贵。
+
+读写分离：降低了单点压力
+1主3从，那么2主3从可以吗？不可以。
+一般主机只有一台。
+
+搭建主从复制
+配从服务器不配主服务器
+1、拷贝多个redis.conf文件
+2、开启daemonize yes
+3、Pid文件的名字    不能相同
+4、指定端口	不能相同
+5、Log文件名字	不能相同
+6、dump.rdb名字	不能相同
+7、Appendonly关掉或者换名字	不能相同
+
+1主2从：3台机子
+在一台机子上同时起3个redis进程
+
+include包含总的配置文件
+dump.rdb文件全删掉
+appendonly.aof文件全删掉，把appendonly no
+redis.conf当作总的配置文件
+
+redis6379.conf
+vim
+includ /myredis/redis.conf
+port 6379
+pidfile /var/run/redis_6379.pid
+dbfilename dump6379.rdb
+
+redis6380.conf
+vim
+includ /myredis/redis.conf
+port 6380
+pidfile /var/run/redis_6380.pid
+dbfilename dump6380.rdb
+
+redis6381.conf
+vim
+includ /myredis/redis.conf
+port 6381
+pidfile /var/run/redis_6380.pid
+dbfilename dump6381.rdb
+slave-priority 10	#主机宕机后从机升级为主机的优先级
+
+
+这里可能使用的linux命令
+删除rm
+移动/改名mv
+vim中替换:%s/旧的字符/新的字符
+
+启动
+redis-server redis6379.conf
+redis-server redis6380.conf
+redis-server redis6381.conf
+
+ps -ef|grep redis
+可以看到三个redis服务都起来了
+
+开一个shell窗口(默认是6379)
+redis-cli 
+
+再开3个cli窗口
+redis -cli -p 6380
+redis -cli -p 6381
+
+现在三个redis-server没有主从关系
+
+查看主从关系:
+info replication
+
+配从不配主
+在从机上配置（6380、6381）
+
+slaveof 127.0.0.1 6379
+
+info replication
+
+主机:
+set k3 v3
+从机:
+get k3
+get k2	也能得到值，原因：在确立主从关系之前，主机的数据
+k2也能被从机访问到，因为在slaveof确立主从关系的那一刻，
+主机会把全部内存的数据做一次存盘，然后把数据给从机。
+
+之后主机每次做操作，从机跟着做就行了。
+
+set k2 v22 出现错误 read only slave。
+		只要是从机就不能写操作。
+主机:
+shutdown 模拟宕机
+从机6380：
+set k2 v22 错误
+info replication 知道主机已经挂了，但是仍然等待
+主机:
+redis-server redis6379.conf
+redis-cli
+set k100 v100
+从机6380:
+get k100
+shutdown 模拟宕机，不影响主机
+主机:
+set k200 v200
+redis-server redis6380.conf
+get k200 找不到了
+set k200 v2000 可以写了，说明它不是从机了，是主机了。
+重启之后slaveof 失效，按配置文件加载，所以我们要
+修改配置文件，直接把命令写在redis6380.conf中即可，
+然后重启。
+set k400 v400失败
+info replication
+已经是从机了
+*只要是一键立主从关系，从机中的数据立马被主机的数据覆盖掉
+
+一主二仆模式演练：
+1、切入点问题？
+slave1、slave2是从头开始复制还是从切入点开始复制？
+从头开始复制
+2、从机是否可以写操作？
+不可以
+3、主机shutdown后，从机是原地待命还是上位?
+原地待命
+4、主机又回来了，主机新增记录，从机是否还能顺利复制？
+可以
+5、其中一台从机down后，再启动后能跟上大部队吗？
+如果再内存中设置的slave就不行了，
+如果是再配置文件中设置了slave就可以。
+
+复制原理：
+每次从机联通后，都会给主机发送sync同步指令
+主机收到后立即存盘操作，发送rdb文件给从机
+从机收到rdb文件后，进行全盘加载
+之后每次主机的写操作，都会立即发送给从机，从机执行相同的命令
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+    

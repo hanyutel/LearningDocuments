@@ -1,0 +1,4 @@
+#配置redis.conf,这个redis.conf是我们的reids的解压目录，并不是安装
+#目录，我们的redis安装目录在/usr/local/bin里面。
+#/user/local/bin里面有我们的redis-server和redis-cli等可执行的工具。
+①我们要设置bind绑定的ip,这个

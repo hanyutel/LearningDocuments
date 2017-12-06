@@ -20,6 +20,14 @@ lpush l1 v1 v2
 type l1 查看类型
 del key删除键
 设置过期时间:expire key seconds(秒)
+set k1 v1 EX 10设置过期时间
+setex k1 10
+expireat key 时间戳
+毫秒
+psetex
+pexpire
+
+
 time to level生存时间:
 ttl key:查看多少秒过期
 -1永不过期
@@ -89,7 +97,7 @@ set集合内的重要接口，这个也是list所不能提供的。
 
 sadd key value1 value2...
 smembers s1取出集合
-sismember s1 v1
+sismember s1 v1 查看是否存在改元素
 scard key返回集合元素的个数
 srem key value1 value2...删除某个元素
 spop s1随机吐出
@@ -161,5 +169,28 @@ zadd art_top 0 0102
 然后如果有人访问0101,就增加它的访问量score
 zincrby art_top 1 0101
 查询访问量前十的文章
+zrevrange 是下标的排序取值
+zrevrangebyscore 是评分范围的取值
 zrevrange art_top 0 9取前十score
 zrevrange art_top 0 9 withscores
+
+跳表：解决了有序链表的查询，数组怎么查最快，二分。但是有序链表怎么解决 
+，链表没办法通过下标去找。那怎么办？
+增加冗余，就是增加一些级别,这些级别里存放了少量的数，用于比较。
+有点类似于折半查找。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
