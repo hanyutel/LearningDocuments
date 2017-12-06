@@ -1,0 +1,79 @@
+mysql的逻辑架构
+
+
+Connection Pool连接池
+
+Caches缓存：帮助读操作
+Buffers缓冲：帮助写操作
+
+SQL Interface简单的查询
+
+Parser翻译：复杂的sql
+
+Optimizer优化：你的sql可能性能很差，尽量给你优化。
+
+pluggable Storage Engines存储引擎
+MyISAM InnoDB
+
+查询工具showprofile
+show variables like '%profiling%'
+set profiling=1;开启
+select * from mytbl4 where id=2;
+show profiles;查询的步骤是什么
+show profile cpu for query 2;查询cpu的执行步骤清单，2是query_id
+在查询一次相同的，时间就变短了，因为命中了缓存
+因为有缓存。
+
+sql是靠什么命中缓存的？
+select * from mytbl4 where id>1 and id<3;
+没有命中缓存
+
+是靠sql语句来命中缓存的。
+
+
+distinct去重
+
+limit
+
+*****************************************************
+存储引擎
+show engines
+innoDB的好处：
+支持事务、行级锁、外键
+
+MyISAM和InnoDB的区别：
+外键	MyISAM不支持，InnoDB支持
+	外键是一种约束，插入学生的时候，必须要有这个班机号。如果没有就报错。
+	影响性能,有些公司不做。批量导入数据的时候有问题。
+
+事务	MyISAM不支持，InnoDB支持
+
+行表锁	MyISAM：表锁，即使操作一条记录也会锁住这个表，不适合高并发的操作
+	InnoDB:行锁，操作时只锁某一行，不对其它行有影响，适合高并发的操作
+
+缓存	MyISAM:只缓存索引，不缓存真是数据
+	InnoDB:不仅缓存索引还要缓存真实数据，对内存要求较高，而且内存大小对
+	性能有绝对性的影响。
+	如果命中了，就不用去数据库取数据了,直接就从缓存中取吗？
+	不同的存储引擎，情况时不同的。
+关注点	MyISAM：读性能，InnoDB:并发写操作、事务、资源
+默认安装MyISAM:Y,InnoDB:Y
+默认使用:MyISAM:N,InnoDB:Y
+系统自带的表:使用MyISAM
+
+Archive引擎只支持insert和select，mysql5.1之前不支持索引。
+适合日志和数据采集
+占用空间小
+
+CSV引擎：excel中另存为也有
+
+create table test_csv(id int not null,name varchar(200) not null)engine=csv;
+insert into test_csv values(1,'zhang3');
+insert into test_csv values(2,'li4');
+
+/var/lib/mysql/mydb中有这个文件
+你可以改，然后再重启一下service
+
+
+
+

@@ -1,0 +1,149 @@
+mysql一张表，单表瓶颈：500万-1000万
+单库5000万
+拆表来解决。
+
+数据库建模（设计）是项目经理来设计，程序员做。
+
+数据库索引建立:快速查询
+建模的时候建立索引
+上线运行到一定阶段的时候，数据比较多了，建立索引。
+
+sql优化：
+与索引相辅相成
+
+sql编程：函数、存储过程、触发器、定时任务
+
+mysql服务器的安装配置linuex
+
+数据库的性能监控分析与系统优化，太难了，运维来做
+
+各种参数常量设定
+windows
+my.ini
+
+linux
+my-huge.cnf小版本
+my-small.cnf大版本
+
+主从复制
+
+分布式架构搭建、垂直切割和水平切割
+
+数据迁移(存储过程和脚本)
+
+容灾备份和恢复(DBA)
+
+shell或python等脚本语言开发
+
+对开源数据库进行二次开发
+****************************************
+MySQL安装linux
+
+server.rpm 
+client.rpm
+
+/opt
+
+检查工作：键查当前系统是否安装过mysql
+rpm -qa|grep mysql如果有下面的就卸载
+rpm -e --nodeps mysql-libs
+检查/tmp文件夹权限
+ll /
+drwxrwxrwt正常
+
+cd /opt
+
+rpm -ivh mysql-client.rpm
+rpm -ivh mysql-server.rpm
+提示：
+记得设置密码
+
+查看系统装上了吗？
+mysqladmin --version
+
+rpm -qa|grep MySQL查看安装的程序
+
+启动
+service mysql start
+
+ps -ef|grep mysql
+mysqld_safe 监工，我们启动的是监工
+mysqld 干活的
+设置密码
+mysqladmin -u root password 'wcx'
+登陆
+mysql -uroot -pwcx
+查看是否开机启动,默认是启动的，所以我们不要随意启动，会端口号冲突。
+chkconfig --list
+
+killall mysqld杀死所有的
+
+主目录
+/usr/bin
+/usr/sbin
+数据目录
+/var/lib/mysql
+/var一般放日志和数据
+
+mysql的配置文件目录：
+/usr/share/mysql
+vim my-huge.cnf配置文件，在这里不会生效
+
+cp my-huge.cnf /etc/my.cnf
+以后再启动默认会从/etc下找my.cnf查找
+
+服务的启动脚本存放目录
+/etc/init.d
+
+配置文件的路径在mysql的启动脚本里写死了。
+
+show databases;
+create database mydb
+use mydb
+create table mytab( id int ,name varchar(200) );
+insert into mytbl values(1,'zhang3');
+insert into mytbl values(1,'李四');
+select * from mytbl;
+乱码
+show variables like '%char%'
+
+set names gbk;重启后还原，所以要改配置文件
+修改字符集
+vim /etc/my.cnf
+
+client的位置：
+在socket下面
+default-character-set=utf8
+
+mysqld下面
+三个配置
+
+通用的选项
+一个配置
+
+重启后生效
+
+service mysql restart
+mysql -uroot -pwcx
+
+use mydb
+select * from mytbl;
+还是乱码；
+
+因为老的表还是以前的字符集
+show create table mytbl;查看完整的见表脚本
+show create database mydb;
+
+改变当前数据库的字符集:
+alter database mydb character set 'utf8'
+alter table mytbl convert to character set 'utf8'
+select * from mytbl;还是乱码
+在插入中文就不是乱码了
+
+
+
+
+
+
+
+

@@ -1,0 +1,51 @@
+索引优化分析：
+
+性能下降sql慢，执行时间长，等待时间长
+数据过多：分库分表
+关联了太多的表，太多join:sql优化
+没有充分利用索引：建立索引
+服务器调优：my.cnf
+
+sqljoin
+别用right join，会晕的。
+主表（全集）left join 从表
+select 交集
+inner join或者where xx=xx
+尽量使用inner
+
+left join配合 is null
+
+full outer join mysql没有这个
+
+union联合查询
+union all
+区别:union可以去重，union all不能去重
+
+增加字段
+alter table t_dept add CEO int(11);
+
+求所有人物对应的掌门名称:
+SELECT b.name,a.name ceo  FROM t_emp a
+RIGHT JOIN 
+(
+SELECT t_emp.`name`,CEO FROM t_emp LEFT JOIN t_dept ON t_emp.`deptId`=t_dept.`id`
+) b
+ON a.id=b.CEO
+
+select ab.name,c.name from 
+（select a.name,b.ceo from t_emp a left join t_dept b on a.deptid=b.id）ab
+left join 
+t_emp c 
+on ab.ceo=c.id
+
+每个机构的掌门
+select b.id,c.name from t_dept bleft join t_emp c on b.ceo=c.id
+
+select a.name,c.name
+from t_emp as a
+left join t_dept as b on a.deptid=b.id
+left join t_emp as c on b.ceo=c.id
+
+select a.name,
+(select c.name from t_emp c where c.id=b.ceo) ceoname
+from t_emp a left join t_dept b on a.deptid=b.id
