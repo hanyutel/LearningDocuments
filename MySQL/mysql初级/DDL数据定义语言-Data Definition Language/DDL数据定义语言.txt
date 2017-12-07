@@ -1,0 +1,182 @@
+DDL语言
+数据定义语言 data define language
+
+库和表的定义与修改
+
+常见约束的定义
+
+库和表的管理
+**********************库的管理***********************
+
+
+
+创建库
+create database 库名
+
+create database if not exists 库名
+
+删除库
+drop database 库名
+drop if exists database 库名
+
+***********************表的管理**********************
+
+
+创建表
+create table 表名（
+	字段名 字段类型 字段约束,
+	字段名 字段类型 字段约束,
+	字段名 字段类型 字段约束
+）
+
+desc 表名：查询表结构
+
+
+修改表
+alter table 表名 add|modify|drop|change column 字段名 字段类型;
+
+①：修改字段名
+alter table 表名 change cloumn 旧列名 新列名 字段类型; 
+
+②：修改表名
+alter table 旧表名 rename to 新表名
+
+③：修改字段类型和列级约束
+alter table 表名 modify column 字段名 字段类型 列级约束;
+
+④：添加字段：提供了first、last加在最后。
+alter table 表名 add column 字段名 数据类型;
+
+⑤：删除字段
+alter table 表名 drop column 字段名；
+
+
+删除表
+
+drop table 表名；
+
+drop table if exists 表名;
+
+开发经验：一般再创建之前，都先删除一下;
+
+********************************复制表**********************************
+
+
+复制表结构，不包括数据
+create table 表名 like 原始表;
+
+不能复制原始表中的数据
+
+复制表结构+数据
+create table 表明
+select * from 原始表
+
+
+仅仅复制姓名和性别，不复制数据
+create table 表名
+select name,gender
+from 原始表
+where 1=2;
+
+**********************************常见约束*******************************
+约束：
+用于限制表中的字段的值，最后保证数据库或表中的数据时可靠的准确的
+
+常见约束
+not null 非空
+
+unique 唯一:1、可以为空 2、一个表中可以有多个唯一(组)
+
+primary key 主键=unique+not null： 1、一个表中最多有一个主键（组）2、不能为空
+
+default 默认
+
+check 检查:mysql不支持，设置该约束的字段值必须满足检查约束
+	   的条件才可以插入值
+
+foreign key 外键
+	   设置该约束的字段值必须来自于主表的关联列的值
+	   类型要一致
+	   插入值时，一定要先插入主表
+	   删除值时，要先删除从表
+
+******************************列级约束******************************
+直接在字段后面加上该约束，用于限制该字段
+
+*****************************表级约束**********************************
+在表的最后加上该约束，用于限制你指定的字段 
+
+create table 表名(
+	字段名 类型 列级约束,
+	字段名 类型 列级约束
+	...
+	表级约束
+)
+
+列级约束
+create table sutinfo(
+	id int primary key,				主键
+	name varchar(20) unique,			唯一
+	gender char not null,				非空(不支持表级约束)	
+	age int default 18,				默认(不支持表级约束)
+	email varchar(20) check(email like '%@%'),	检查
+	gradeId int references grade(id)		外键
+)
+
+
+表级约束
+create table sutinfo(
+	id int,				
+	name varchar(20),			
+	gender char,					
+	age int,				
+	email varchar(20),	
+	gradeId int,
+	
+	constraint pk primary key(id),
+	constraint uq unique(name),
+	constraint ck check(email like '%@%'),
+	constraint fk_stuinfo_grade foreign key(gradeId) references grade(id)		
+)
+
+注意：
+六大约束都可以设置为列级约束，但是外键约束没有效果
+除了非空和默认，其它都可以设置成表级约束
+mysql中不支持检查check约束
+列级约束不能起名
+表级约束如果不起约束名，默认创建一个。
+
+查询
+show index from stuinfo;
+
+***********************************修改表时添加约束************************************
+
+列级约束
+alter table 表名 modify column 字段名 字段类型 约束;
+alter table 表名 add 【constraint 约束名】约束类型(字段名);
+not null和default只支持列级约束,
+
+primary key和unique支持列级约束+表级约束
+
+
+
+alter table 表名 add primary key(字段名);
+alter table 表名 add constraint 约束名 primary key(字段名);
+
+外键只支持表级约束
+alter table stuinfo add constraint 约束名 foreign key(gradeid) references grade(id);
+
+************************************删除约束***********************************
+
+表级约束
+alter table 表名 drop 约束类型 约束名
+列级约束
+alter table 表名 modify column 字段名 字段类型
+
+删除主键，列级约束
+alter table 表名 drop primary key;不用加约束名
+删除唯一
+alter table 表名 drop index uq;不是用unique,使用 index
+
+alter table 表名 drop foreign key fk_stu_grade;
+

@@ -1,0 +1,19 @@
+1、在mysql.ini中更改字符编码为utf8
+2、在客户端更改数据库、表字符集utf8
+3、把sql文件另存为utf8的文件
+4、把sql文件中的内容粘贴到客户端运行，不要直接运行sql文件
+5、在cmd中，使用show variables like '%char%';
+一般显示为:
+| Variable_name            | Value                                                   |
++--------------------------+---------------------------------------------------------+
+| character_set_client     | utf8                                                    |
+| character_set_connection | utf8                                                    |
+| character_set_database   | utf8                                                    |
+| character_set_filesystem | binary                                                  |
+| character_set_results    | utf8                                                    |
+| character_set_server     | utf8                                                    |
+| character_set_system     | utf8                                                    |
+| character_sets_dir       | C:\Program Files\MySQL\MySQL Server 5.5\share\charsets\
+你可以尝试更改set character_set_client=gbk;和set cahracter_set_results=gbk;
+
+set names gbk;

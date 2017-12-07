@@ -1,0 +1,19 @@
+1.使用360卸载，并强力删除相关东东
+
+2.清理注册表: 
+
+A.HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\Eventlog\Application\MySQL 目录
+
+B.HKEY_LOCAL_MACHINE\SYSTEM\ControlSet002\Services\Eventlog\Application\MySQL 目录
+
+C.HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\Application\MySQL 目录
+
+D.HKEY_LOCAL_MACHINE\SYSTEM\CurrentControl001\Services\MYSQL 目录
+
+E.HKEY_LOCAL_MACHINE\SYSTEM\CurrentControl002\Services\MYSQL　目录
+
+F.HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MYSQL　目录
+
+3.删除C:\Documents and Settings\All Users\Application Data\MySQL 目录 （隐藏的目录）
+
+4.删除安装路径文件，重新安装新版MYSQL 
