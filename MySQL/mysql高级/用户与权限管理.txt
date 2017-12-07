@@ -1,0 +1,55 @@
+Mysql的用户和权限管理
+use mysql
+show tables;
+有一个user表
+select * from user\G;
+select host,user,password,select_priv from user;
+
+不是一个用户一个记录
+4个root
+不同的是host
+就是限制你登陆的ip
+localhost
+jack.atguigu
+127.0.0.1
+::1这时ipv6的写法
+
+创建一个通过远程方式可以登陆的用户
+create user zhang3 identified by 'wcx'
+select host,user,password,select_priv from user;
+有一个%,代表所有的通过网络ip地址访问。
+这个时候既可以连接了，但是权限不足呀
+
+设置权限
+grant all privileges on mydb.* to zhang3@'%';
+*.*是所有表
+@'%'是远程登陆方式
+本地是登陆失败的，只能远程。
+grant all privileges on mydb.* to zhang3@localhost identified by '123';
+
+本地登陆也可以了。
+
+use mysql
+给张三改密码
+update user set password='1231223'where user='zhang3' and host='localhost';
+不行
+密码要加密
+password=password('1231223')
+还不能使用，
+要刷新一下
+flush  privileges;
+可以使用zhangsan 123123登陆了
+
+设置root可以远程登陆
+grant all privileges on *.* to root@'%' identified by '123123';
+
+
+
+
+
+
+
+
+
+
+

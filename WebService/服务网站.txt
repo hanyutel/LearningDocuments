@@ -1,0 +1,9 @@
+http://www.webxml.com.cn/zh_cn/index.aspx
+
+调用天气的API
+
+WeatherWebServiceSoap weather_soap= new WeatherWebService().getWeatherWebServiceSoap();
+List<String>   weather_infos =weather_soap.getWeatherbyCityName("北京").getString() ; 
+for (String weather_info : weather_infos) { 
+	System.out.println(weather_info); 
+}

@@ -1,0 +1,63 @@
+Mysql的大小写问题：
+大小写不敏感
+select * from mytbl	成功
+select * from mytbL	windows成功，linux失败
+表名在linux中大小写敏感
+
+show variables like '%lower_case_table_names%';linux显示0,严格区分大小写
+1是把表名都变成了小写，查询的时候会自动给你转成小写。
+修改
+vim /etc/my.cnf
+一般配置项mysqld
+lower_case_table_names=1;
+sservice mysql restart
+
+sql_mode
+create table mytbl3 (id int,name varchar(200),age int,dept int);
+insert into mytbl3 values(1,'zhang3',33,101)
+insert into mytbl3 values(2,'li4',34,101)
+insert into mytbl3 values(3,'wang5',34,102)
+insert into mytbl3 values(5,'tian7',36,102);
+
+按照年龄分组统计个数:
+select count(*) from mytbl3 group by age;
+select * from mytbl3 group by age;
+结果显示不合理，按照录入数据靠前的显示。
+
+涉及group by的select的后面只能放两种字段，group by后面有的字段，聚合函数
+聚合函数sum()avg()count()max()min()等
+
+
+取每个机构年龄最大的人
+
+select name,dept,max(age) from mytbl3 group by dept;
+
+name显示不合理,没有遵循上面的原则
+
+分步
+每个机构最大年龄
+select dept,max(age) from mytbl4
+group by dept
+
+select * from mytbl4 m 
+inner join
+( 
+select dept,max(age) from mytbl4
+group by dept
+) ab on ab.dept=m.dept and m.age=ab.maxage
+
+#sql的检查机制不严格
+show variables like 'sql_mode'
+set sql_mode='ONLY_FULL_GROUP_BY'
+垃圾sql执行就不成功了。
+
+
+
+
+
+
+
+
+
+
+

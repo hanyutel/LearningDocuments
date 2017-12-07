@@ -1,0 +1,38 @@
+﻿#服务service
+
+#查看服务的状态
+service 服务名 status
+例如:
+service network status
+service iptables status
+#启动服务
+service 服务名 start
+例如:
+service network start
+service iptables start
+#停止服务
+service 服务名 stop
+例如:
+service network stop
+service iptables stop
+#重启服务
+service 服务名 restart
+例如:
+service network restart
+#linux中一切皆文件,服务相关的文件都存放在/etc/init.d/服务名
+#etc目录下存放的是配置信息
+例如: 
+vim /etc/init.d/iptables
+vim /etc/init.d/network
+#通过chkconfig命令设置自启动
+#查看服务chkconfig --list|grep 服务名
+
+这里的数字5是linux当前的runlevel运行级别
+设置开机自动启动/关闭
+#chkconfig --level 5 服务名 on/off
+
+
+
+
+
+

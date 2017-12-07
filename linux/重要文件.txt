@@ -1,0 +1,4 @@
+重要文件：
+/etc/inittab linux的默认运行级别配置文件
+/etc/sysconfig/network-script/ifcfg-eth0 网络配置文件
+linux中一切皆文件,服务相关的文件都存放在/etc/init.d/服务名

@@ -1,0 +1,15 @@
+jdk、eclipse、tomcat都安装在opt目录下
+
+配置环境变量:
+vim /etc/profile
+
+JAVA_HOME=/opt/jdk1.7.0_79
+PATH=/opt/jdk1.7.0_79/bin:$PATH
+export JAVA_HOME PATH
+
+刷新一下profile环境变量/重新登陆一下
+source /etc/profile
+
+配置tomcat
+启动tomcat   ./startup.sh 在tomcat的解压问价的bin目录下
+开放端口 vim /etc/sysconfig/iptables 防火墙默认只开启22端口

@@ -1,0 +1,76 @@
+主流框架cxf:
+引入jar包
+①：接口类上加上注解@WebService
+@WebService
+public interface UserService {
+	public String play(String name, int age);
+}
+②：添加普通实现类
+public class UserServiceImpl implements UserService {
+	@Override
+	public String play(String name, int age) {
+		return "姓名:" + name + "年龄:" + age;
+	}
+}
+③：创建服务启动类
+public class Center {
+	public static void main(String[] args) {
+		JaxWsServerFactoryBean jaxWsServerFactoryBean = new JaxWsServerFactoryBean();
+		jaxWsServerFactoryBean.setAddress("http://localhost:9999/SOAP");//设置地址
+		jaxWsServerFactoryBean.setServiceClass(UserServiceImpl.class);//设置服务实现类
+		Server server = jaxWsServerFactoryBean.create();
+		server.start();
+		System.out.println("服务启动了");
+	}
+}
+④：创建客户端
+public class Client {
+	public static void main(String[] args) {
+		JaxWsProxyFactoryBean jaxWsProxyFactoryBean=new JaxWsProxyFactoryBean();
+		jaxWsProxyFactoryBean.setAddress("http://localhost:8888/SOAP");
+		jaxWsProxyFactoryBean.setServiceClass(UserService.class);
+		UserService userService = (UserService) jaxWsProxyFactoryBean.create();
+		String play = userService.play("sdf", 12);
+		System.out.println(play);
+	}
+}
+
+*******************************************************************************************************
+开启生产者（服务端）以后，可以通过上面的代码进行测试，也可以使用eclipse提供的图形化工具测试。
+要在url地址后面加上?wsdl才可访问。
+使用TCP/IP Monitor抓取SOAP消息
+
+*********************************************************************************
+JAX-WS工具:
+JAX-WS规范是一组XML web services的 JAVA API，它运行时实现会将这些API的调用转换 成为对应的SOAP消息，
+是Sun公司提出的一套关于 WebService的开发标准。要想在不同的项目上调用生产者，就要使用apache-cxf提供
+的wsdl2java命令，只要在后面加上地址的链接+?wsdl即可
+将自动生成的包粘贴到你的消费者项目中，然后根据情况调用API,例如：
+生成客户端需要的代码，不用手写了。
+wsdl2java http://localhost:9999/SOAP?wsdl
+生成客户端调用API的代码，可以当做测试使用
+wsdl2java -client http://localhost:9999/SOAP?wsdl
+
+然后手写调用:
+UserService userService = new UserServiceImplService().getUserServiceImplPort();
+String play = userService.play("sdf", 23);
+System.out.println(play);
+*******************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

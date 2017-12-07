@@ -1,0 +1,74 @@
+Linux上安装Redis
+redis-3.2.5.tar.gz压缩包解压到opt目录下。
+
+安装方式:
+rpm yum 解压即用
+另一种方式：源码编译安装
+在redis-3.2.5文件下即可
+编译make
+如果make报错就yum install gcc-c++安装编译器
+如果提示jemalloc/jemalloc.h没有那个文件就执行下面的:
+清理c++编译器make distclean 再make
+编译之后安装
+make install
+安装的目录
+/usr/local/bin
+
+./redis-server启动服务器
+./可以省略的目录:
+把redis服务变为后台执行：
+/opt/redis -3.2.5
+redis.conf配置文件
+daemonize no守护进程(后台进程)例如mysqld.exe就是后台进程
+daemonize yes
+当前的配置文件启动
+redis -server redis.conf
+ps -ef|grep redis
+访问
+redis-cli
+ping 
+显示PONG
+set k1 v1
+set k2 v2
+keys *
+在client中：关闭shutdown
+
+不在client里:redis-cli shutdown利用客户端将服务器关闭。
+
+如果有密码：想要在redis-cli外面关闭redis-server，使用
+redis-cli -a wcx shutdown
+登陆reids-cli后，如果要进行操作，要先登陆:auth wcx
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

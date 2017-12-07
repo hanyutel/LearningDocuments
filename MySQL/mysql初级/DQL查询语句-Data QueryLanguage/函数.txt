@@ -1,0 +1,113 @@
+函数：
+一：单行函数
+①：字符函数
+trim	去前后指定空格或指定字符
+ltrim	去左边空格
+rtrim	去右边空格
+lpad	左填充
+rpad	右填充
+upper	大写
+lower	小写
+substr	截取字串
+concat	拼接字符
+length	获取字节的个数
+replace	替换
+instr	返回字串第一次出现的索引，索引从1开始，如果找不到返回0
+②：数学函数
+ceil	向上取整
+floor	向下取整
+mod	取余
+rand	随机数
+truncate截断
+③：日期函数
+now	获取当前时间
+str_to_date将字符串转换为日期
+date_format将日期转换为字符
+year('1998-8-9'); 1998
+month('1998-8-9');8
+monthname获取月部分，以英文形式
+day('1998-9-23');23
+datediff获取两个日期只差，一般用于使用生日比较age的大小。
+④：流程控制函数
+if函数
+select if(条件表达式，值1，值2);
+
+case函数
+用于等值判断，类似于java的switch语句
+语法:
+case 表达式
+when 值1 then 语句1或显示的值1
+when 值1 then 语句2或显示的值2
+...
+else 语句n或显示的值n
+end
+用于区间判断,类似于java中的多重if语句
+case 
+when 条件1 then 语句1或显示的值1
+...
+else 语句n或显示的值n
+end
+
+其它函数:
+database();
+user();
+version()
+
+二：分组函数
+max
+min
+avg
+sum
+count
+1、sum和avg函数一般用于数值型的处理
+其它三个支持任意类型
+1、都忽略null
+3、都可以搭配distinct关键字去重
+4、count中的参数支持：字段、*、常量值(1)
+select count(age) from 表;
+select count(*) from 表;
+select count(1) from 表;
+效率：
+在my.ini文件下，
+default-storage-engine=INNODB
+在innoDB存储引擎下，count(*)和count(1)效率一样，count(字段)号慢
+在MyISAM存储引擎下，count(*)快
+
+select 分组函数，分组字段
+from 表
+where 分组前的筛选条件
+group by 分组的字段
+having 分组后的筛选条件
+order by 排序
+
+特点:
+1、分组的字段可以为单个，也可以为多个，如果是多个则用逗号隔开来
+2、分组的筛选条件
+		针对的表	关键字	位置
+分组前的筛选	原始表		where	group by前面
+分组后的筛选	分组后的结果集	having	group by后面
+3、having可以支持别名
+
+*******************************************************************
+函数
+concat()拼接
+length()长度
+ifnull(,);如果为null，就用某个值替换
+条件查询：
+条件表达式:条件运算符>,<,=,<>,<=>,>=,<=,!=
+这里的=,!=,<>不可以用来判断是否为空上面，是否为空由is null,is not null来判断，<=>可以判断是否为空，但是我们一般不用。
+逻辑表达式:逻辑运算符
+and与&&
+or与||
+not与!
+模糊查询:
+like 
+between and
+in
+is null
+is not null
+
+注意使用like模糊查询的时候，_代表一个字符，%代表任意个字符，\代表转义字符，但是不推荐\，我们可以使用escape关键字来自定义转义字符。
+
+排序:
+order by  asc/desc

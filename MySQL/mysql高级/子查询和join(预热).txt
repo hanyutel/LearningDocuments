@@ -1,0 +1,57 @@
+索引优化分析：
+
+性能下降sql慢，执行时间长，等待时间长
+
+原因
+
+数据过多：分库分表
+关联了太多的表，太多join:sql优化
+没有充分利用索引：建立索引
+服务器调优：my.cnf
+
+sqljoin
+别用right join，会晕的。
+主表（全集）left join 从表
+select 交集
+inner join或者where xx=xx
+尽量使用inner
+
+left join配合 is null
+
+full outer join mysql没有这个
+
+union联合查询
+union all
+区别:union可以去重，union all不能去重
+*****************************************************************************************
+
+求所有人物对应的掌门名称:
+求所有人物对应的掌门名称:
+
+方法一：
+SELECT a.name,b.name CEO
+FROM 
+(
+	SELECT DISTINCT t_emp.`name`,t_dept.`CEO`
+	FROM t_emp
+	LEFT JOIN t_dept
+	ON t_emp.`deptId`=t_dept.`id`
+	) a
+LEFT JOIN 
+t_emp b
+ON  a.CEO=b.id
+
+方法二：
+
+	SELECT DISTINCT a.`id`,a.`name`,b.`CEO`,c.name
+	FROM t_emp a
+	LEFT JOIN t_dept b ON a.`deptId`=b.`id`
+	LEFT JOIN t_emp c ON  b.CEO=c.id
+
+
+方法三:
+
+SELECT t_emp.`name`,(SELECT t_emp.name FROM t_emp WHERE id=t_dept.`CEO`) ceo
+FROM t_emp
+LEFT JOIN t_dept
+ON t_emp.`deptId`=t_dept.`id`

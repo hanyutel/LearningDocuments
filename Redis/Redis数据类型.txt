@@ -1,0 +1,196 @@
+端口:6379是Reids创始人意大利人调侃一名女星的。
+默认是16个数据库，使用select dbid来切换数据库
+select 1
+keys *
+
+一般我们只用0号库
+Reids是单线程+多路io复用
+membcached是多线程+锁
+
+Redis数据类型:
+key +String、set、list、hash、zset
+
+查询key:keys *
+keys *
+keys k*
+keys *1
+查看key是否存在:exists key
+查看类型:type k1
+lpush l1 v1 v2
+type l1 查看类型
+del key删除键
+设置过期时间:expire key seconds(秒)
+set k1 v1 EX 10设置过期时间
+setex k1 10
+expireat key 时间戳
+毫秒
+psetex
+pexpire
+
+
+time to level生存时间:
+ttl key:查看多少秒过期
+-1永不过期
+-2过期了
+
+dbsize当前数据库的大小
+flushdb清空当前库
+flushall清空所有库
+
+
+数据类型
+*****************************************************************
+String是Redis最基本的类型，是二进制安全的。意味着Redis的
+一个redis中字符串value最大可以是512M
+String可以包含任何数据。例如jpg图片或者序列化对象，相关序列化
+技术:json、base64
+
+get key查询
+set key value添加
+
+append key value 追加到原值的末尾
+
+strlen key长度
+setnx key value设置不存再的key,如果已经存在就无效
+incr key 将key中存储的数字值增1，只能对数字值操作，如果为空，新增值为1
+
+decr key 将key中存储的数字值减1，只能对数字值操作，如果为空，新增值为-1
+
+incrby/decrby key步长 将key中储存的数字值增减，自定义步长
+redis的原子性：因为redis是单线程+多路io复用
+mset k1 v1 k2 v2 批量设置
+mget k1 k2 k3 批量获取
+msetnx k1 v1 k10 v10 k1000 v1000 同时设置，仅当key不存在时。
+getrange key 起始位置 结束位置
+类似于substring但是不同的是包头还包尾
+setrange key 起始位置 内容 ：替换
+setex key 过期时间 value
+getset key 内容：以新换旧，显示旧值
+***************************************************************
+数据类型list
+单键多值
+ArrayList是数组，LinkedList是双向链表，但是操作不支持双向，
+我们redis中的list支持双向操作。按照栈的顺序存储。
+对两端的操作性能很高，通过索引下标的操作中间的节点性能会比较差。
+lpush key value...从左边进
+rpush key value...
+lpush l1 1 2 3 4 5
+lpop key从左边吐出一个
+lpop l1吐出5
+rpop l1吐出1
+
+如果继续往外吐，吐完之后key就会消失，值在键在，值光键亡
+右边出左边进
+rpoplpush
+按照索引往外取，从左往右
+lrange list1 1 3
+lrange list1 0 -1取全部
+lindex list 1 按照索引下标获得元素
+llen list1 长度
+linsert list before 4 A 插入到4之前,4是value
+lrem list1 2 A从左边删除2个A
+*************************************************************
+数据类型set:redis set对外提供的功能与list类似是一个列表的功能，特殊
+之处在于set是可以自动排重的，当你需要存储一个列表数据，又不希望出现
+重复数据时，set是一个很好的选择，并且set提供了判断某个成员是否在一个
+set集合内的重要接口，这个也是list所不能提供的。
+
+sadd key value1 value2...
+smembers s1取出集合
+sismember s1 v1 查看是否存在改元素
+scard key返回集合元素的个数
+srem key value1 value2...删除某个元素
+spop s1随机吐出
+srandmember key 随机取出，不是吐出 
+例如:
+set1 one two three 
+set2 three four
+sinter交集 
+three
+sunion并集
+one two three four
+sdiff差集
+sdiff set1 set2:one two
+sdiff set2 set1:four
+***********************************************************
+数据类型hash
+类似于hashMap
+k->v(k->v)
+hash是一个string类型的field和value的映射表，特别适合存对象。
+redis存储对象的方式
+①：key ->json:序列化和反序列化耗性能
+序列化Object>json
+反序列化json>Object
+②：key可以起名为（对象id:属性名）:
+数据变多
+③：hash
+customer:0101
+		name zhangsan
+		balance 1000
+		city bj
+
+hset key field value
+例如:
+hset customer:0101 name wangchunxu
+hset customer:0101 age 12
+hset customer:0101 balance 1000
+hset customer:0101 city bj
+给key集合中的field键赋值value
+hget key field
+例如:
+hget customer:0101 name
+hmset key field value ...批量设置hash值
+hexists key field查看哈希表key中，field是否存在
+hkeys key 查看该hash集合的所有value
+hincrby key field increment 为哈希表key中的域的值增加量increment(数值类型的value)
+hsetnx key field value将哈希表key中的域的值设置为value,当且仅当域field不存在时。
+*********************************************************
+数据结构zset:sorted set,是个有序集合，没有重复元素。
+
+类似于TreeSet，通过compleable排序
+通过评分score来排序，按照从低到高方式排列集合。
+集合中的成员是唯一的，但是评分score是可以重复的。
+
+zadd key score1 value1...
+zadd z1 100 v1 200 v2 80 v3
+zrange z1 0 -1查询全部
+zrangebyscore key min max按照评分score的范围取
+zrevrangebyscore key max min 
+zincrby z1 1000 v1 给指定的value增加评分score
+zcount z1 100 10000 统计该集合，评分区间的元素个数
+zrank z1 v3取排名
+因为zset是按照score评分来排序的，所以只需要取最大的10个数即可
+
+
+
+实现一个文章的访问量排行榜
+zadd art_top 0 0101
+zadd art_top 0 0102
+然后如果有人访问0101,就增加它的访问量score
+zincrby art_top 1 0101
+查询访问量前十的文章
+zrevrange 是下标的排序取值
+zrevrangebyscore 是评分范围的取值
+zrevrange art_top 0 9取前十score
+zrevrange art_top 0 9 withscores
+
+跳表：解决了有序链表的查询，数组怎么查最快，二分。但是有序链表怎么解决 
+，链表没办法通过下标去找。那怎么办？
+增加冗余，就是增加一些级别,这些级别里存放了少量的数，用于比较。
+有点类似于折半查找。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

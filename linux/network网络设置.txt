@@ -1,0 +1,7 @@
+网络network
+桥接模式:客户机与主机的ip在同一个网段，外网可以访问客户机，与主机是同一个级别。
+NAT模式:客户机与主机单独开一个子网，这时主机在两个网段都有ip，客户机和主机可以单独通信，但是外网不能访问客户机。
+：修改linux的网络1、通过修改文件2、通过界面操作
+vim /etc/sysconfig/network-scripts/ifcfg-eth0
+修改完成后可以重启一下network的服务
+service network restart
