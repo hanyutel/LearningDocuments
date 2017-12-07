@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 
+=======
+1、打开服务窗口:services.msc
+2、打开辅助键盘:osk
+3、打开注册表:regedit
+4、启动mysql 服务:net start mysql 注意：要用管理员模式进入cmd
+5、关闭mysql 服务:net stop mysql
+>>>>>>> 70a8d9034cbbef99d3a66fb597b44adee082bbf7
 6、进入mysql client:mysql -u用户名 -p密码 注意：这里必须配置了mysql的环境变量，否则要在mysql的bin目录中进入
 7、查看当前mysql数据库的版本号:select version(); 注意：在没有进入mysql client的时候使用mysql -V;
 	查询如下:

@@ -22,8 +22,11 @@ taskkill /PID 5216 /F
 注意:
 这里我们可能杀不死它，但是我们可以通过任务管理器来结束。
 
+<<<<<<< HEAD
 1、打开服务窗口:services.msc
 2、打开辅助键盘:osk
 3、打开注册表:regedit
 4、启动mysql 服务:net start mysql 注意：要用管理员模式进入cmd
 5、关闭mysql 服务:net stop mysql
+=======
+>>>>>>> 70a8d9034cbbef99d3a66fb597b44adee082bbf7
