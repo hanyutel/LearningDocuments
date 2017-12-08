@@ -9,7 +9,7 @@ show variables like '%lower_case_table_names%';linux显示0,严格区分大小写
 修改
 vim /etc/my.cnf
 一般配置项mysqld
-lower_case_table_names=1;
+set lower_case_table_names=1;
 sservice mysql restart
 
 sql_mode

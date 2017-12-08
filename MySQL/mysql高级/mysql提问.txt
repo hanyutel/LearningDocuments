@@ -1,0 +1,185 @@
+1、linux下 mysql 的数据和日志文件放在哪个目录 、默认的配置文件叫什么，要放在哪
+ 
+  /var/lib/mysql  
+
+
+  my.cnf
+
+/etc/my.cnf
+
+
+从 /usr/share/mysql/ xxxx .cnf  拷贝到/etc/my.cnf
+ 
+
+
+
+
+
+
+
+
+
+
+2、首次登录前用什么命令设置密码
+
+ 
+ mysqladmin -u root password '123123123'
+
+
+
+
+
+
+
+ 
+
+ 
+
+
+
+
+
+
+
+
+3、linux 下 mysql 创建数据库默认字符集是是什么 ，如何得知
+ 
+ 
+
+show variables like '%char%'
+
+
+默认是latin   
+
+修改 utf-8
+
+
+
+
+
+
+
+4、binlog 是干什么的 
+
+ 
+ 二进制日志 
+
+作用 ：
+  主从复制 
+  
+   备份恢复 
+
+ 
+
+
+
+
+ 
+
+
+
+
+5、要增加一个名叫"li4"的用户并且有插删改查的权限在mytest库的所有表上，但是只允许通过网络方式访问，不允许本地登录，密码设为123321。    
+
+ 
+  
+grant select,insert,update,delete on mytest.* to li4@'%' identified by '123321'
+
+
+
+ 
+ 
+
+
+
+6 linux下的mysql是否对表名大小写敏感 
+
+ 
+ 敏感 
+
+
+ show variables like  '%lower_case_table_names%'
+
+
+set lower_case_table_names =1;
+ 
+ 
+ 
+
+ 
+
+
+
+   
+
+7  说说一条查询语句的在mysql的执行步骤
+
+ 1 查缓存 
+ 2 查询权限 
+
+ 缓存未命中 
+
+ 解析sql 
+ 优化sql 
+ 执行 
+ sending data 
+
+ 存储到缓存 
+
+
+
+
+
+
+
+
+8  说说Myisam和innodb的区别
+ 
+ 
+myisam      innodb
+
+不支持外键   支持
+
+不支持事务   支持
+
+表锁         行锁
+
+缓存索引     缓存数据 占内存较大 
+
+
+
+
+
+
+
+
+
+ 
+
+ 9  表  mytbl (id int ,name varchar(200))
+ 
+   一条sql：select * from mytbl 查询过后
+   
+   select id,name from mytbl 能否命中之前的缓存
+
+
+  不能命中
+  
+
+  缓存能否命中 完全看sql语句的字符串 是否一致
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+             
+ 

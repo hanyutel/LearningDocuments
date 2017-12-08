@@ -27,6 +27,9 @@ grant all privileges on mydb.* to zhang3@'%';
 本地是登陆失败的，只能远程。
 grant all privileges on mydb.* to zhang3@localhost identified by '123';
 
+insert,select,delete,update
+=all privileges
+
 本地登陆也可以了。
 
 use mysql
