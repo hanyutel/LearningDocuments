@@ -1,0 +1,110 @@
+*********************************建表脚本************************************
+
+ 
+CREATE TABLE IF NOT EXISTS `class` (
+`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+`card` INT(10) UNSIGNED NOT NULL,
+PRIMARY KEY (`id`)
+);
+CREATE TABLE IF NOT EXISTS `book` (
+`bookid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+`card` INT(10) UNSIGNED NOT NULL,
+PRIMARY KEY (`bookid`)
+);
+ 
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO class(card) VALUES(FLOOR(1 + (RAND() * 20)));
+ 
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+INSERT INTO book(card) VALUES(FLOOR(1 + (RAND() * 20)));
+ 
+ 
+ 
+*********************************案例****************************************
+
+ 
+# 下面开始explain分析
+EXPLAIN SELECT * FROM class LEFT JOIN book ON class.card = book.card;
+#结论：type 有All
+ 
+# 添加索引优化
+ALTER TABLE `book` ADD INDEX Y ( `card`);
+ 
+# 第2次explain
+EXPLAIN SELECT * FROM class LEFT JOIN book ON class.card = book.card;
+#可以看到第二行的 type 变为了 ref,rows 也变成了优化比较明显。
+#这是由左连接特性决定的。LEFT JOIN 条件用于确定如何从右表搜索行,左边一定是全表查询，创建了索引也没用
+#所以右边是我们的关键点,一定需要建立索引。
+ 
+# 删除旧索引 + 新建 + 第3次explain
+DROP INDEX Y ON book;
+ALTER TABLE class ADD INDEX X (card);
+EXPLAIN SELECT * FROM class LEFT JOIN book ON class.card = book.card;
+ 
+ 
+ 
+**************************************建议*************************************
+
+1、保证被驱动表的join字段已经被索引
+2、left join时，选择小表作为驱动表，大表作为被驱动表
+3、inner join（首先选择有索引的作为被驱动表），如果没有索引，mysql会自己帮你把
+   结果集少的表作为驱动表。
+4、子查询尽量不要放在被驱动表，有可能使用不到索引。
+5、能够直接多表关联的尽量直接关联，不用子查询。
+
+***************************************子查询优化*********************************
+尽量不要使用not in 或者not exists，但是目前mysql版本对not in进行了优化，可以使用了。
+
+取所有不为掌门人的员工，按年龄分组
+ 
+ 
+  SELECT SQL_NO_CACHE * FROM emp a WHERE  id  NOT  IN(SELECT ceo FROM dept b2 WHERE ceo IS NOT NULL)
+  group by age 
+ 
+ 
+  having count(*)<10000
+
+定则：用left outer join  on  xxx is null 替代
+
+
+  EXPLAIN SELECT SQL_NO_CACHE a.* FROM  emp a LEFT OUTER JOIN dept b ON a.id =b.ceo
+  WHERE    b.ceo IS   NULL
+  group by age 
+  having count(*)<10000
+

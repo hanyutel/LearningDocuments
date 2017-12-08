@@ -72,6 +72,8 @@ CREATE  INDEX idx_no_name ON customer(customer_no,customer_name);
 删除索引：
 DROP INDEX idx_no_name  on customer ;
 
+暗示技术：from 表名 use index(idx_deptid_age) where(尽量不要用)
+
 ***********************************索引操作语法***********************************
 创建
 create index indexName on table_anem(column)

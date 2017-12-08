@@ -1,0 +1,84 @@
+ 系统中经常出现的sql语句如下：  
+  EXPLAIN SELECT SQL_NO_CACHE * FROM emp WHERE emp.age=30  
+ EXPLAIN SELECT SQL_NO_CACHE * FROM emp WHERE emp.age=30 and deptid=4
+ EXPLAIN SELECT SQL_NO_CACHE * FROM emp WHERE emp.age=30 and deptid=4 AND emp.name = 'abcd'  
+ 
+索引应该如何建立 ？
+
+CREATE INDEX idx_age_deptid_name ON emp(age,deptid,NAME)
+
+*****************************最佳左前缀法则***************************************
+
+如果系统经常出现的sql如下：
+  SELECT SQL_NO_CACHE * FROM emp WHERE emp.age=30   AND emp.name = 'abcd'   
+或者
+SELECT SQL_NO_CACHE * FROM emp WHERE emp.deptid=1   AND emp.name = 'abcd'   
+ 那原来的idx_age_deptid_name 还能否正常使用？
+
+select 1中age可以使用复合索引中的age，但是name不能跳过deptid使用索引。
+
+select 2汇总的deptid和name都不能跳过gae使用复合索引的索引。
+
+
+********************************在索引列上做任何操作（计算、函数、自动或手动类型转换），会导致索引失效而转向全表扫描*****************************************
+
+这两条sql哪种写法更好
+SELECT SQL_NO_CACHE * FROM emp WHERE   emp.name  LIKE 'abc%' 
+ 
+SELECT SQL_NO_CACHE * FROM emp WHERE   LEFT(emp.name,3)  = 'abc'
+
+*****************************存储引擎不能使用索引中范围条件右边的列***************************************
+ 如果系统经常出现的sql如下：
+ 
+ SELECT  SQL_NO_CACHE * FROM emp WHERE emp.age=30 AND emp.deptId>20 AND emp.name = 'abc' ; 
+
+ 
+那么索引 idx_age_deptid_name这个索引还能正常使用么？
+
+如果这种sql 出现较多
+应该建立： 
+create index idx_age_name_deptid on emp(age,name,deptid)
+
+# drop index idx_age_name_deptid on emp
+
+*****************************mysql 在使用不等于(!= 或者<>)的时候无法使用索引会导致全表扫描***************************************
+ 
+ CREATE INDEX idx_name ON emp(NAME)
+  
+  EXPLAIN SELECT SQL_NO_CACHE * FROM emp WHERE   emp.name <>  'abc' 
+
+*****************************is not null 也无法使用索引,但是is null是可以使用索引的***************************************
+  
+   UPDATE emp SET age =NULL WHERE id=123456;
+ 
+   下列哪个sql语句可以用到索引
+  EXPLAIN SELECT * FROM emp WHERE age IS NULL
+  
+  EXPLAIN SELECT * FROM emp WHERE age IS NOT NULL
+
+  这种情况有例外奥...
+*****************************like以通配符开头('%abc...')mysql索引失效会变成全表扫描的操作***************************************
+
+*****************************字符串不加单引号索引失效,原因是自动类型转换***************************************
+
+********************************************************************
+ 假设index(a,b,c)
+Where语句							索引是否被使用
+where a = 3							Y,使用到a
+where a = 3 and b = 5						Y,使用到a，b
+where a = 3 and b = 5 and c = 4					Y,使用到a,b,c
+where b = 3 或者 where b = 3 and c = 4  或者 where c = 4	N
+where a = 3 and c = 5						使用到a， 但是c不可以，b中间断了
+where a = 3 and b > 4 and c = 5					使用到a和b， c不能用在范围之后，b断了
+where a is null and b is not null  	  			is null 支持索引 但是is not null 不支持,所以 a 可以使用索引,但是  b不可以使用
+where a <> 3   	 						不能使用索引
+where   abs(a) =3	不能使用 索引
+where a = 3 and b like 'kk%' and c = 4				Y,使用到a,b,c
+where a = 3 and b like '%kk' and c = 4				Y,只用到a
+where a = 3 and b like '%kk%' and c = 4				Y,只用到a
+where a = 3 and b like 'k%kk%' and c = 4			Y,使用到a,b,c
+
+*********************************注意*************************************
+对于单键索引，创建时要针对过滤性较好的字段，经常在where中使用的字段/排序的字段
+在创建复合索引时，要遵循过滤性好的靠前，经常使用的靠前，经常范围查询的字段放在最后
+书写sql语句时，尽量避免造成索引失效
