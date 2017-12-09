@@ -1,41 +1,52 @@
-�������������ݣ�������־
+不断增长的数据，例如日志
 /var
-���ݺ���־�����
+数据和日志存放在
 /var/lib/mysql
+这个目录下有err错误日志文件，还有mydb、mysql目录，这些目录对应着你的数据库，里面存放着数据库表的数据，
+有.frm文件（存放的是表的字段信息）,
+还有.MYD文件(存放的是表的记录)，
+.MYI文件存放的是表的索引等信息。
 
-mysql��
-��ŵ���ϵͳ���ã�Ȩ�޵�
+mysql数据库
+存放的是系统配置，权限等
 
 cd mysql
-user����Ӧuser.frm user.MYD user.MYI�����ļ�
-���ݴ����MYD������������frm�����������MYI
+user表对应user.frm user.MYD user.MYI三个文件
+数据存放在MYD，主外键存放在frm，索引存放在MYI
 
 cd mydb
 db.opt
 mytbl.frm
-Ϊʲô����ֻ��һ��,���ݴ����������һ��Ŀ¼��ibdatal������innodb���е�����
-��������������sql�������ر�ߵĻ����Ͳ�̫���ˡ�
+为什么这里只有一份,数据存放再来上面一层目录。ibdatal，所有innodb所有的数据
+都存在这里。当你的sql并发行特别高的话，就不太好了。
 
-��Ϊ�������治ͬ��
-show create 
+因为数据引擎不同**查看数据表的建表信息，可以查看它的存储引擎。
+show create table user;
 MyISAM
 InnoDB
 
-�����Ҫ��ÿһ������������һ���ļ���Ҳ����
+如果想要让每一个表都单独存一个文件，也可以**设置innodb存储引擎下，我们的数据表存放的方式由所有的表都存放到mysql/ibdatal文件中，转换为分开存储，
+例如myisam的存储方式。这样也是解决并发性的一种方式。
+
 show variables like '%innodb_file_per_table%'
-set innodb_file_per_table=1;��������Ҫ����Ϊȫ�ֵı���
+
+set innodb_file_per_table=1;报错，需要设置为全局的变量
+
 set global innodb_file_per_table=1;
+
 use mydb
 create table mytbl2(id int,name varchar(200));
 insert into mytbl2 values(100,'tian7');
 cd mydb
-���ʱ������3���ļ��ˡ����Խ�������Ե�һЩ���⡣
+这个时候发现有3个文件了。可以解决并发性的一些问题。
 
-������־log-error Ĭ���ǹرգ���¼���صľ���ʹ�����Ϣ��
-����ѯ��־log Ĭ�Ϲرգ���¼��ѯsql�������ή��mysql����������
+错误日志log-error 默认是关闭，记录严重的警告和错误信息，
 
-��������־log-bin ������aof������д�������������Ӹ��Ƽ����ݻָ���
-��ִ�к���ʱ�ᱨ������Ϊ��������ӱ����ݲ�һ�¡�����now()
+慢查询日志log 默认关闭，记录查询sql，开启会降低mysql的整体性能,它记录的是一个查询速度比较慢的sql，然后进行sql优化，可以设置一个阈值，例如查询时间
+大于1s的sql。
+
+二进制日志log-bin 类似与aof，保存写操作，用于主从复制及备份恢复。它是mysql主从复制的桥梁，与Redis的主从复制不同。
+当执行函数时会报错，因为会造成主从表数据不一致。或者now()
 
 
 
