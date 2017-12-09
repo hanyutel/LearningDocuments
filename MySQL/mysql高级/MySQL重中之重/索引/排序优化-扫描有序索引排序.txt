@@ -1,0 +1,396 @@
+常用语句
+
+查看建表语句
+show create table tablename;
+查看表中的索引
+show index from tablename;
+删除索引
+drop index indexname on tablename;
+
+排序优化
+mysql中order by的排序方式有两种，文件排序fileshort和扫描有序索引排序
+
+ORDER BY子句，尽量使用Index方式排序,避免使用FileSort方式排序
+
+ #无过滤 不索引 
+ #limit也使用索引
+ #顺序错，必排序 idx_age_deptid 如果使用order by age,deptid是可以的，但是order by deptid,age就不可以。
+ #方向反 必排序 asc asc与desc desc都可以，但是desc asc与asc desc不可以
+
+mysql> explain select name from emp  order by deptid,age limit 11;
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra          |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+1 row in set (0.00 sec)
+
+mysql> explain select name from emp where age=40 order by deptid;
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+| id | select_type | table | type | possible_keys  | key            | key_len | ref   | rows  | Extra       |
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+|  1 | SIMPLE      | emp   | ref  | idx_age_deptid | idx_age_deptid | 5       | const | 48404 | Using where |
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+1 row in set (0.00 sec)
+
+mysql> explain select name from emp where deptid=40 order by age;
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra                       |
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using where; Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+1 row in set (0.00 sec)
+
+
+
+where后面是过滤
+oreder by是排序
+
+建立两个索引
+create index idx_age_deptid on emp (age,deptid);
+
+create index idx_deptid_age on emp (deptid,age);
+
+查看建表语句
+show create table tablename;
+查看表中的索引
+show index from tablename;
+删除索引
+drop index indexname on tablename;
+
+测试下面的sql语句
+explain select sql_no_cache * from emp order by age,deptid limit 11;
+
+explain select sql_no_cache * from emp where age=40 order by deptid limit 11;
+
+explain select sql_no_cache * from emp order by age,deptid limit 10;
+
+没有建立任何的索引（不包括主键，主键也不用刻意去建立索引）
+
+*******************************************************************测试**********************************************
+
+explain select * from emp order by age,deptid limit 11;
+
+mysql> explain select * from emp order by age,deptid limit 11;
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra          |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+1 row in set (0.00 sec)
+mysql> select sql_no_cache * from emp order by age,deptid limit 11;
++--------+--------+--------+------+--------+
+| id     | empno  | name   | age  | deptId |
++--------+--------+--------+------+--------+
+| 408276 | 508276 | FUIHns |   30 |      1 |
+|  99327 | 199327 | ewYzDr |   30 |      2 |
+|  84303 | 184303 | VQsqBL |   30 |      3 |
+| 254423 | 354423 | MQRMjL |   30 |      3 |
+| 461466 | 561466 | qQffkM |   30 |      3 |
+|  85991 | 185991 | OcTnJt |   30 |      4 |
+|  21238 | 121238 | Brfzfd |   30 |      4 |
+| 246673 | 346673 | bLxflM |   30 |      4 |
+| 202438 | 302438 | tuSfWs |   30 |      4 |
+| 204300 | 304300 | SnOdcb |   30 |      7 |
+| 216230 | 316230 | WWTFtb |   30 |      7 |
++--------+--------+--------+------+--------+
+11 rows in set (0.21 sec)
+
+
+没有用到索引，因为我们的age,deptid字段都没建立索引
+Extra显示
+Using filesort
+using filesort危险 查询中排序的字段，排序字段若通过索引去访问将大大提高
+rows太大，代表需要检索的行数
+type all代表全表查询
+key、key_len都代表没有用到索引
+
+
+explain select sql_no_cache * from emp where age=40 order by deptid;
+
+mysql> explain select sql_no_cache * from emp where age=40 order by deptid;
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra                       |
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using where; Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+1 row in set (0.00 sec)
+
+mysql> select sql_no_cache * from emp where age=40 order by deptid limit 11;
++--------+--------+--------+------+--------+
+| id     | empno  | name   | age  | deptId |
++--------+--------+--------+------+--------+
+| 325625 | 425625 | zzXoBQ |   40 |      1 |
+| 352883 | 452883 | mQtxfi |   40 |      1 |
+| 247650 | 347650 | kwCwzk |   40 |      2 |
+| 428855 | 528855 | MneFPj |   40 |      2 |
+| 435548 | 535548 | chFBUR |   40 |      2 |
+| 475573 | 575573 | ktmhZz |   40 |      2 |
+|  22715 | 122715 | QgjAaA |   40 |      3 |
+| 271677 | 371677 | RmJxtB |   40 |      3 |
+| 283397 | 383397 | HzCnIz |   40 |      3 |
+| 369111 | 469111 | zgjAaA |   40 |      3 |
+| 471166 | 571166 | JpJiaA |   40 |      3 |
++--------+--------+--------+------+--------+
+11 rows in set (0.17 sec)
+
+explain select sql_no_cache * from emp order by age,deptid limit 10;
+
+mysql> explain select sql_no_cache * from emp order by age,deptid limit 10;
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra          |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+1 row in set (0.00 sec)
+
+mysql> select sql_no_cache * from emp order by age,deptid limit 10;
++--------+--------+--------+------+--------+
+| id     | empno  | name   | age  | deptId |
++--------+--------+--------+------+--------+
+| 408276 | 508276 | FUIHns |   30 |      1 |
+|  99327 | 199327 | ewYzDr |   30 |      2 |
+|  84303 | 184303 | VQsqBL |   30 |      3 |
+| 254423 | 354423 | MQRMjL |   30 |      3 |
+| 461466 | 561466 | qQffkM |   30 |      3 |
+|  85991 | 185991 | OcTnJt |   30 |      4 |
+|  21238 | 121238 | Brfzfd |   30 |      4 |
+| 246673 | 346673 | bLxflM |   30 |      4 |
+| 202438 | 302438 | tuSfWs |   30 |      4 |
+| 204300 | 304300 | SnOdcb |   30 |      7 |
++--------+--------+--------+------+--------+
+10 rows in set (0.22 sec)
+
+记录：在没有给排序字段建立索引的情况下
+
+explain select sql_no_cache * from emp order by age,deptid limit 11; 耗时 (0.21 sec)
+
+explain select sql_no_cache * from emp where age=40 order by deptid limit 11; 耗时 (0.17 sec)
+
+explain select sql_no_cache * from emp order by age,deptid limit 10; 耗时 (0.22 sec)
+
+下面创建索引
+create index idx_age_deptid on emp(age,deptid)
+
+mysql> create index idx_age_deptid on emp(age,deptid);
+Query OK, 0 rows affected (1.50 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> show index from emp;
++-------+------------+----------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table | Non_unique | Key_name       | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++-------+------------+----------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| emp   |          0 | PRIMARY        |            1 | id          | A         |      500493 |     NULL | NULL   |      | BTREE      |         |               |
+| emp   |          1 | idx_age_deptid |            1 | age         | A         |         200 |     NULL | NULL   | YES  | BTREE      |         |               |
+| emp   |          1 | idx_age_deptid |            2 | deptId      | A         |         200 |     NULL | NULL   | YES  | BTREE      |         |               |
++-------+------------+----------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+3 rows in set (0.00 sec)
+
+
+*******************************************************************测试**********************************************
+
+explain select sql_no_cache * from emp order by age,deptid limit 11;
+
+mysql> explain select sql_no_cache * from emp order by age,deptid limit 11;
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+| id | select_type | table | type  | possible_keys | key            | key_len | ref  | rows | Extra |
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+|  1 | SIMPLE      | emp   | index | NULL          | idx_age_deptid | 10      | NULL |   11 |       |
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+1 row in set (0.00 sec)
+
+mysql> select sql_no_cache * from emp order by age,deptid limit 11;
++--------+--------+--------+------+--------+
+| id     | empno  | name   | age  | deptId |
++--------+--------+--------+------+--------+
+| 408276 | 508276 | FUIHns |   30 |      1 |
+|  99327 | 199327 | ewYzDr |   30 |      2 |
+|  84303 | 184303 | VQsqBL |   30 |      3 |
+| 254423 | 354423 | MQRMjL |   30 |      3 |
+| 461466 | 561466 | qQffkM |   30 |      3 |
+|  21238 | 121238 | Brfzfd |   30 |      4 |
+|  85991 | 185991 | OcTnJt |   30 |      4 |
+| 202438 | 302438 | tuSfWs |   30 |      4 |
+| 246673 | 346673 | bLxflM |   30 |      4 |
+|  19685 | 119685 | idPQKb |   30 |      7 |
+|  22158 | 122158 | rDRyQK |   30 |      7 |
++--------+--------+--------+------+--------+
+11 rows in set (0.00 sec)
+
+explain select sql_no_cache * from emp where age=40 order by deptid limit 11;
+
+mysql> explain select sql_no_cache * from emp where age=40 order by deptid limit 11;
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+| id | select_type | table | type | possible_keys  | key            | key_len | ref   | rows  | Extra       |
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+|  1 | SIMPLE      | emp   | ref  | idx_age_deptid | idx_age_deptid | 5       | const | 48404 | Using where |
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select sql_no_cache * from emp where age=40 order by deptid limit 11;
++--------+--------+--------+------+--------+
+| id     | empno  | name   | age  | deptId |
++--------+--------+--------+------+--------+
+| 325625 | 425625 | zzXoBQ |   40 |      1 |
+| 352883 | 452883 | mQtxfi |   40 |      1 |
+| 247650 | 347650 | kwCwzk |   40 |      2 |
+| 428855 | 528855 | MneFPj |   40 |      2 |
+| 435548 | 535548 | chFBUR |   40 |      2 |
+| 475573 | 575573 | ktmhZz |   40 |      2 |
+|  22715 | 122715 | QgjAaA |   40 |      3 |
+| 271677 | 371677 | RmJxtB |   40 |      3 |
+| 283397 | 383397 | HzCnIz |   40 |      3 |
+| 369111 | 469111 | zgjAaA |   40 |      3 |
+| 471166 | 571166 | JpJiaA |   40 |      3 |
++--------+--------+--------+------+--------+
+11 rows in set (0.00 sec)
+
+explain select sql_no_cache * from emp order by age,deptid limit 10;
+
+mysql> explain select sql_no_cache * from emp order by age,deptid limit 10;
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+| id | select_type | table | type  | possible_keys | key            | key_len | ref  | rows | Extra |
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+|  1 | SIMPLE      | emp   | index | NULL          | idx_age_deptid | 10      | NULL |   10 |       |
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+1 row in set (0.00 sec)
+
+mysql> select sql_no_cache * from emp order by age,deptid limit 10;
++--------+--------+--------+------+--------+
+| id     | empno  | name   | age  | deptId |
++--------+--------+--------+------+--------+
+| 408276 | 508276 | FUIHns |   30 |      1 |
+|  99327 | 199327 | ewYzDr |   30 |      2 |
+|  84303 | 184303 | VQsqBL |   30 |      3 |
+| 254423 | 354423 | MQRMjL |   30 |      3 |
+| 461466 | 561466 | qQffkM |   30 |      3 |
+|  21238 | 121238 | Brfzfd |   30 |      4 |
+|  85991 | 185991 | OcTnJt |   30 |      4 |
+| 202438 | 302438 | tuSfWs |   30 |      4 |
+| 246673 | 346673 | bLxflM |   30 |      4 |
+|  19685 | 119685 | idPQKb |   30 |      7 |
++--------+--------+--------+------+--------+
+10 rows in set (0.00 sec)
+
+ 可以分析出来建立索引之后，确实快了很多。
+ 无过滤，不索引，那是因为我们都是用了limit，limit也是一种过滤。
+ 如果我们将limit删除掉，
+ 那么我们的select * from emp order by age,deptid;即使你建立了索引，也用不上索引。
+ 如下:
+mysql> explain select * from emp  order by age,deptid;
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra          |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+1 row in set (0.00 sec)
+
+mysql> explain select sql_no_cache * from emp order by age,deptid limit 11;
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+| id | select_type | table | type  | possible_keys | key            | key_len | ref  | rows | Extra |
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+|  1 | SIMPLE      | emp   | index | NULL          | idx_age_deptid | 10      | NULL |   11 |       |
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+1 row in set (0.00 sec)
+
+type是index，表示覆盖索引或者是排序上使用了索引。
+
+但是为什么我们的select * from emp wher age=40 order by age,deptid;去掉limit之后也能使用索引，那是因为你的过滤条件命中了索引。age字段,
+如果我们将age字段换为name字段，那么过滤条件将命不中索引，你的order by 也不会使用索引。
+这里的key_len为什么是5,因为使用了age字段的索引，它反应的是你的过滤条件使用的索引字节数。不是你的排序使用的索引字节数。
+有时候这里key_len不太准确。
+
+
+mysql> explain select * from emp where age=40 order by age,deptid;
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+| id | select_type | table | type | possible_keys  | key            | key_len | ref   | rows  | Extra       |
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+|  1 | SIMPLE      | emp   | ref  | idx_age_deptid | idx_age_deptid | 5       | const | 48404 | Using where |
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-------------+
+1 row in set (0.00 sec)
+mysql> explain select * from emp  order by age,deptid;
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra          |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+1 row in set (0.00 sec)
+
+mysql> explain select sql_no_cache * from emp where name='asdf' order by age,deptid;
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra                       |
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using where; Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+1 row in set (0.00 sec)
+
+排序的字段顺序和复合索引的顺序是有关系的。
+
+mysql> explain select * from emp order by deptid,age limit 11;
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra          |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+----------------+
+1 row in set (0.00 sec)
+
+mysql> explain select * from emp order by age,deptid limit 11;
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+| id | select_type | table | type  | possible_keys | key            | key_len | ref  | rows | Extra |
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+|  1 | SIMPLE      | emp   | index | NULL          | idx_age_deptid | 10      | NULL |   11 |       |
++----+-------------+-------+-------+---------------+----------------+---------+------+------+-------+
+1 row in set (0.00 sec)
+
+其实没有using filesort，并不是利用索引排序，而是索引已经排好了序，我们直接用就行。
+显示using filesort不是指你的过滤条件用没用上索引，反映的是你排序时用没用上索引，只要有一个没用上索引的就时using filesort
+例如
+
+mysql> explain select * from emp where age=40 order by age,empno;
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-----------------------------+
+| id | select_type | table | type | possible_keys  | key            | key_len | ref   | rows  | Extra                       |
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-----------------------------+
+|  1 | SIMPLE      | emp   | ref  | idx_age_deptid | idx_age_deptid | 5       | const | 48404 | Using where; Using filesort |
++----+-------------+-------+------+----------------+----------------+---------+-------+-------+-----------------------------+
+1 row in set (0.00 sec)
+
+**********************************************************************练习题**********************************************************************
+ create index idx_age_deptid_name on emp (age,deptid,name)
+ 
+ 
+ 
+以下  是否能使用到索引，能否去掉using filesort
+ 
+ 
+1、explain  select * from emp order by age,deptid; 
+ 
+ 
+ 
+2、 explain  select * from emp order by age,deptid limit 10; 
+ 
+ 
+ #无过滤 不索引 
+ #limit也使用索引
+ 
+3、  explain  select * from emp where age=45 order by deptid;
+ 
+ 
+4、explain  select * from emp where age=45 order by   deptid,name; 
+ 
+5、explain  select * from emp where age=45 order by  deptid,empno;
+ 
+6、explain  select * from emp where age=45 order by  name,deptid;
+ 
+7、 explain select * from emp where deptid=45 order by age;
+ 
+#顺序错，必排序
+ 
+ 
+ 
+8、  explain select * from emp where age=45 order by  deptid desc, name desc ;
+ 
+     
+ 
+9、 explain select * from emp where age=45 order by  deptid asc, name desc ;
+ 
+  #方向反 必排序
