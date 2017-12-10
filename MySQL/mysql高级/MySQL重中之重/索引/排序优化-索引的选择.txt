@@ -1,0 +1,154 @@
+结论：
+当范围条件和group by 或者 order by  的字段出现二选一时 ，优先观察条件字段的过滤数量，如果过滤的数据足够多，而需要排序的数据并不多时，
+优先把索引放在范围字段上。反之，亦然。
+例如:
+select * from emp where age=30 and empno<101000 order by name;
+在索引idx_age_empno_name、idx_age_name_empno之间会选择idx_age_empno_name因为范围过滤和order by利用索引排序只能选择一种，范围过滤比较
+好，因为它可以过滤掉大部分，剩余的rows直接使用fileshort文件排序即可。
+
+这里出现了例外：有using fileshort的反而更快，因为范围过滤的功劳。
+我们强制使用from talbename use index(idx_age_name_empno)的话，范围过滤没有使用上索引，排序利用了索引，没有了useing fileshort ，性能
+反而下降了。
+
+
+mysql> explain select * from emp where age=30 and empno<101000 order by name;
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows   | Extra                       |
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+|  1 | SIMPLE      | emp   | ALL  | NULL          | NULL | NULL    | NULL | 500493 | Using where; Using filesort |
++----+-------------+-------+------+---------------+------+---------+------+--------+-----------------------------+
+1 row in set (0.00 sec)
+
+mysql> create index idx_age_empno_name on emp(age,empno,name);
+Query OK, 0 rows affected (2.36 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> create index idx_age_name_empno on emp(age,name,empno);
+Query OK, 0 rows affected (3.65 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> show index from emp;
++-------+------------+--------------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table | Non_unique | Key_name           | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++-------+------------+--------------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| emp   |          0 | PRIMARY            |            1 | id          | A         |      500493 |     NULL | NULL   |      | BTREE      |         |               |
+| emp   |          1 | idx_age_empno_name |            1 | age         | A         |         200 |     NULL | NULL   | YES  | BTREE      |         |               |
+| emp   |          1 | idx_age_empno_name |            2 | empno       | A         |         200 |     NULL | NULL   |      | BTREE      |         |               |
+| emp   |          1 | idx_age_empno_name |            3 | name        | A         |         200 |     NULL | NULL   | YES  | BTREE      |         |               |
+| emp   |          1 | idx_age_name_empno |            1 | age         | A         |         200 |     NULL | NULL   | YES  | BTREE      |         |               |
+| emp   |          1 | idx_age_name_empno |            2 | name        | A         |         200 |     NULL | NULL   | YES  | BTREE      |         |               |
+| emp   |          1 | idx_age_name_empno |            3 | empno       | A         |         200 |     NULL | NULL   |      | BTREE      |         |               |
++-------+------------+--------------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+7 rows in set (0.00 sec)
+
+mysql> explain select * from emp where age=30 and empno<101000 order by name;
++----+-------------+-------+-------+---------------------------------------+--------------------+---------+------+------+-----------------------------+
+| id | select_type | table | type  | possible_keys                         | key                | key_len | ref  | rows | Extra                       |
++----+-------------+-------+-------+---------------------------------------+--------------------+---------+------+------+-----------------------------+
+|  1 | SIMPLE      | emp   | range | idx_age_empno_name,idx_age_name_empno | idx_age_empno_name | 9       | NULL |   39 | Using where; Using filesort |
++----+-------------+-------+-------+---------------------------------------+--------------------+---------+------+------+-----------------------------+
+1 row in set (0.00 sec)
+
+mysql> select * from emp where age=30 and empno<101000 order by name;
++-----+--------+--------+------+--------+
+| id  | empno  | name   | age  | deptId |
++-----+--------+--------+------+--------+
+| 928 | 100928 | ATVUMc |   30 |   9919 |
+| 166 | 100166 | BcIhMm |   30 |   3213 |
+| 604 | 100604 | BQyVjf |   30 |   8290 |
+| 623 | 100623 | BxJacm |   30 |   4381 |
+| 526 | 100526 | CnHyvI |   30 |   1866 |
+| 491 | 100491 | DJJsMH |   30 |   1917 |
+| 818 | 100818 | DtiISq |   30 |   2049 |
+| 167 | 100167 | DVTEsa |   30 |   9600 |
+| 650 | 100650 | EqPdVs |   30 |   1373 |
+| 171 | 100171 | FObPVh |   30 |   7133 |
+| 106 | 100106 | HBMdhz |   30 |   6573 |
+| 988 | 100988 | HDSDpO |   30 |   7606 |
+| 205 | 100205 | iFzJHu |   30 |    209 |
+| 575 | 100575 | IYTwAq |   30 |   1719 |
+| 396 | 100396 | jaAAbJ |   30 |   1950 |
+| 464 | 100464 | JDapyz |   30 |   6712 |
+| 870 | 100870 | JvbVwy |   30 |   6973 |
+| 441 | 100441 | JwnZjV |   30 |   3602 |
+| 213 | 100213 | jzSQDr |   30 |    243 |
+| 276 | 100276 | kjqdsJ |   30 |   2256 |
+| 891 | 100891 | LKqyyT |   30 |   4373 |
+|  60 | 100060 | LLxdaP |   30 |   6255 |
+| 482 | 100482 | LVuneH |   30 |   1328 |
+| 474 | 100474 | MHXQmM |   30 |   7950 |
+| 442 | 100442 | MIeuOI |   30 |    387 |
+| 267 | 100267 | NMzkCh |   30 |   7441 |
+| 203 | 100203 | nPlJMH |   30 |   1630 |
+| 984 | 100984 | ODASLb |   30 |   9154 |
+| 627 | 100627 | RSRCoO |   30 |   7568 |
+| 829 | 100829 | sJfFMR |   30 |   6079 |
+| 862 | 100862 | tWyECW |   30 |   2291 |
+| 473 | 100473 | UshECW |   30 |   3692 |
+| 225 | 100225 | VPpfJO |   30 |   8768 |
+| 121 | 100121 | vQQJKJ |   30 |   3417 |
+| 332 | 100332 | wcYIvc |   30 |   8805 |
+| 550 | 100550 | Xcxefn |   30 |   2267 |
+| 665 | 100665 | xZFdAp |   30 |   2273 |
+| 777 | 100777 | YjdNCB |   30 |   4073 |
+| 804 | 100804 | ZKCFtb |   30 |   1414 |
+|  12 | 100012 | zVczrl |   30 |   5962 |
++-----+--------+--------+------+--------+
+40 rows in set (0.00 sec)
+
+mysql> explain select * from emp use index(idx_age_name_empno) where age=30 and empno<101000 order by name;
++----+-------------+-------+------+--------------------+--------------------+---------+-------+-------+-------------+
+| id | select_type | table | type | possible_keys      | key                | key_len | ref   | rows  | Extra       |
++----+-------------+-------+------+--------------------+--------------------+---------+-------+-------+-------------+
+|  1 | SIMPLE      | emp   | ref  | idx_age_name_empno | idx_age_name_empno | 5       | const | 48610 | Using where |
++----+-------------+-------+------+--------------------+--------------------+---------+-------+-------+-------------+
+1 row in set (0.01 sec)
+
+
+
+mysql> select * from emp use index(idx_age_name_empno) where age=30 and empno<101000 order by name;
++-----+--------+--------+------+--------+
+| id  | empno  | name   | age  | deptId |
++-----+--------+--------+------+--------+
+| 928 | 100928 | ATVUMc |   30 |   9919 |
+| 166 | 100166 | BcIhMm |   30 |   3213 |
+| 604 | 100604 | BQyVjf |   30 |   8290 |
+| 623 | 100623 | BxJacm |   30 |   4381 |
+| 526 | 100526 | CnHyvI |   30 |   1866 |
+| 491 | 100491 | DJJsMH |   30 |   1917 |
+| 818 | 100818 | DtiISq |   30 |   2049 |
+| 167 | 100167 | DVTEsa |   30 |   9600 |
+| 650 | 100650 | EqPdVs |   30 |   1373 |
+| 171 | 100171 | FObPVh |   30 |   7133 |
+| 106 | 100106 | HBMdhz |   30 |   6573 |
+| 988 | 100988 | HDSDpO |   30 |   7606 |
+| 205 | 100205 | iFzJHu |   30 |    209 |
+| 575 | 100575 | IYTwAq |   30 |   1719 |
+| 396 | 100396 | jaAAbJ |   30 |   1950 |
+| 464 | 100464 | JDapyz |   30 |   6712 |
+| 870 | 100870 | JvbVwy |   30 |   6973 |
+| 441 | 100441 | JwnZjV |   30 |   3602 |
+| 213 | 100213 | jzSQDr |   30 |    243 |
+| 276 | 100276 | kjqdsJ |   30 |   2256 |
+| 891 | 100891 | LKqyyT |   30 |   4373 |
+|  60 | 100060 | LLxdaP |   30 |   6255 |
+| 482 | 100482 | LVuneH |   30 |   1328 |
+| 474 | 100474 | MHXQmM |   30 |   7950 |
+| 442 | 100442 | MIeuOI |   30 |    387 |
+| 267 | 100267 | NMzkCh |   30 |   7441 |
+| 203 | 100203 | nPlJMH |   30 |   1630 |
+| 984 | 100984 | ODASLb |   30 |   9154 |
+| 627 | 100627 | RSRCoO |   30 |   7568 |
+| 829 | 100829 | sJfFMR |   30 |   6079 |
+| 862 | 100862 | tWyECW |   30 |   2291 |
+| 473 | 100473 | UshECW |   30 |   3692 |
+| 225 | 100225 | VPpfJO |   30 |   8768 |
+| 121 | 100121 | vQQJKJ |   30 |   3417 |
+| 332 | 100332 | wcYIvc |   30 |   8805 |
+| 550 | 100550 | Xcxefn |   30 |   2267 |
+| 665 | 100665 | xZFdAp |   30 |   2273 |
+| 777 | 100777 | YjdNCB |   30 |   4073 |
+| 804 | 100804 | ZKCFtb |   30 |   1414 |
+|  12 | 100012 | zVczrl |   30 |   5962 |
++-----+--------+--------+------+--------+
+40 rows in set (0.07 sec)

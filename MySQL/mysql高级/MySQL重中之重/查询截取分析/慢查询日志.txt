@@ -1,0 +1,78 @@
+*********************************慢查询日志*****************************
+慢查询日志是mysql提供的一种日志记录，它用来记录在mysql中响应时间超过阈值
+的语句，具体指运行时间超过long_query_time值的sql，则会被记录到慢查询日志
+中。
+
+mysql> show variables like '%long_query_time%';
++-----------------+-----------+
+| Variable_name   | Value     |
++-----------------+-----------+
+| long_query_time | 10.000000 |
++-----------------+-----------+
+1 row in set (0.00 sec)
+使用show variables like '%long_query_time%'来long_query_time阈值，
+默认的时间是10秒，意思是执行时间10秒以上的数据都会被保存在日志里。
+
+我们可以将阈值改为1s;
+
+
+********慢查询日志
+
+查看慢查询日志是否开启,默认情况下，是不开启慢查询日志的。
+
+当然，如果不是调优需要的话，一般不建议启动该参数，因为开启
+慢查询日志会或多或少带来一定的性能影响。慢查询日志支持将日志记录写入文件
+
+show variables like '%slow_query_log%'
+
+mysql> show variables like '%slow_query_log%';
++---------------------+-----------------------------+
+| Variable_name       | Value                       |
++---------------------+-----------------------------+
+| slow_query_log      | OFF                         |
+| slow_query_log_file | /var/lib/mysql/wcx-slow.log |
++---------------------+-----------------------------+
+2 rows in set (0.00 sec)
+开启慢查询日志
+set global slow_query_log =1;
+只对当前数据库生效，如果重启mysql后失效。
+要想永久生效，就要修改配置文件my.cnf
+修改my.cnf文件，[mysqld]下增加或修改参数
+slow_query_log和slow_query_log_file后，然后重启mysql服务器。
+slow_query_log=1
+slow_query_log_file=/var/lib/mysql/wcx-slow.log
+
+如果没有指定指定慢查询日志的存放路径slow_query_log_file的话，系统会
+默认指定一个缺省文件host_name-slow.log
+
+设置阈值
+show variables like '%long_query_time%';
+
+set long_query_time=1; 只在当前线程中有效，所以要设置成全局global
+set global log_query_time=1;
+但是全局的变量在重启mysql之后还是会失效，要修改配置文件my.cnf
+long_query_time=1
+
+这里是如果sql查询语句的执行时间超过1秒才会被记录下来。
+我们测试一下
+首先打开一个窗口用于实时显示日志
+tail -20f /var/lib/mysql/wcx-slow.log
+然后在另一个窗口
+select sleep(2);
+
+查询当前系统有多少条慢查询记录
+show global status like '%Slow_queries%';
+
+存放路径
+/var/lib/mysql/wcx-slow.log
+
+我们要首先要优化这个文件中的sql
+给这些语句排序，就是时间最长的，或者经常使用的。
+
+my.cnf
+【mysqld】下配置：
+ 
+slow_query_log=1;
+slow_query_log_file=/var/lib/mysql/atguigu-slow.log
+long_query_time=3;
+log_output=FILE 	 改配置是指定日志的存储方式，日志可以选择文件存储（默认），也可以选择数据表存储（不建议）。
