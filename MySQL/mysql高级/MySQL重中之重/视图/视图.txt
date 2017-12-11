@@ -1,0 +1,26 @@
+将一段查询sql封装成一个虚拟的表。
+
+这个虚拟表只保存了sql逻辑，不会保存任何查询结果。
+
+作用：
+①：封装复杂的sql语句，提高复用性
+②：逻辑放在数据库上面，更新不需要发布程序，面对频繁的需求变更更加灵活
+
+适用场景：
+很多地方可以共用的一组查询结果
+报表
+
+语法：
+ CREATE VIEW view_name 
+AS
+SELECT column_name(s)
+FROM table_name
+WHERE condition
+ 
+ 
+使用：
+select * from view_name 
+
+注意事项：
+mysql的视图不允许from右面的子查询，但是oracle可以
+view的使用对性能并没有什么优化。
