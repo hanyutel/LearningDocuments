@@ -1,0 +1,43 @@
+作用:用来做定时任务
+
+语法:
+delimiter $$
+create  event event_name
+on schedule every 1 minute
+start now()
+on completion preserve 
+do
+  begin
+	call proc_update_topn;
+  end $$
+
+将一个结果集放到一个临时表中
+create table t_topn
+as
+select ......
+
+以后每次去查询临时表t_topn就可以了，但是数据变化了那？
+可以用触发器，但是触发器不太好，所以我们可以使用定时任务（事件）；
+
+truncate tale t_topn;
+
+批量插入：
+insert into t_topn
+select ......
+
+存储过程:
+create procedure proc_update_topn()
+begin
+	...
+	...
+end
+
+
+
+mysql组件的使用频率排行
+表
+视图
+函数
+存储过程
+事件（物化视图oracle）
+触发器

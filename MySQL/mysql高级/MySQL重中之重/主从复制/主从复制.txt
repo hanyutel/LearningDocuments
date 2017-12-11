@@ -1,0 +1,133 @@
+***************************************主从复制*****************************************
+读写分离（分摊压力）
+快速容灾
+
+***************************************MySQL主从复制的步骤*****************************************
+1、master将改变记录到二进制日志binary log。这些记录过程叫做二进制日志事件，binary log events
+2、slave将master的binary log events拷贝到它的中继日志(relay log)
+3、slave重做中继日志中的事件，将改变应用到自己的数据库中。mysql复制是异步的且串行化的
+
+
+***************************************主从复制的基本原则*****************************************
+每个slave只有一个master
+每个slave只能有一个唯一的服务器ID
+每个master可以有多个salve
+
+***************************************主从复制的缺点*****************************************
+缺点：有延迟（高可用 强一致只能二选一）
+
+解决方案:
+1、缓存
+2、光纤
+3、ssd的磁盘
+4、可以再程序业务层等待上1s。
+
+msql的主从复制与Redis的主从复制不同
+Redis的主从复制的关系一确立，主机马上存盘，然后发送给从机。
+mysql的主从复制建立关系的时候，从机不复制主机之前的数据。
+
+***************************************主从复制的配置*****************************************
+mysql版本一致且后台以服务运行
+
+主从都配置在mysqld节点下，都是小写
+
+**********************主机修改my.ini配置文件
+
+主服务器唯一ID server-id=1
+启动二进制
+log-bin=自己本地的路径/data/mysqlbin
+log-bin=D:/devSoft/MySQLServer5.5/data/mysqlbin
+
+设置不要复制的数据库
+binlog-ignore-db=mysql
+设置需要复制的数据库
+binlog-do-db=需要复制的主数据库名字
+
+binlog_format=STATEMENT	
+statement是语句的意思，主从之间按照语句复制。
+
+update xxx set xxx where name like 'zhang%'没有问题
+但是
+update xxx set xxx=now() where name like 'zhang%'就有问题了。
+
+我们也可以
+binlog_format=row
+按照行的变化来复制，虽然数据一致，但是数据冗余多
+
+于是出现了:
+mixed混合的:一般情况下默认statement执行，遇到特殊情况使用row模式。
+例如：含有函数的操作
+
+但是有些可能识别不了。
+**********************从机配置my.cnf
+
+从机配置文件修改my.cnf的[mysqld]栏位下
+server-id=2
+relay-log=mysql-relay	中继日志：这里就是指定它的位置和文件名
+
+因修改过配置文件，请主机+从机都重启后台mysql服务
+
+主机从机都关闭防火墙
+windows手动关闭
+linux：service iptables stop
+
+**********************在windos主机上建立了账户并授权slave
+
+grant replication slave on *.* to zhangsan@'从机的数据库ip' identified by '123456';
+这里的从机的数据库ip可以是%
+
+查询master的状态
+
+show master status
+记录下file和position的值
+
+执行完此步骤后不要再操作主服务器mysql,防止主服务器状态值变化
+具体步骤:
+grant replication slave on *.* to slave0725@'%' identified by'wcx';
+
+再linux从服务器上:mysql -uslave0725 -pwcx -h192.168.67.1 -p3306
+
+**********************再linux从机上配置需要复制的主机
+
+change master to master_host='主机ip',master_user='zhangsan',master_password='123456',master_log_file='file名字',master_log_pos=position数字;
+配置本机的主机是谁?
+CHANGE MASTER TO MASTER_HOST='192.168.124.3',
+MASTER_USER='zhangsan',
+MASTER_PASSWORD='123456',
+MASTER_LOG_FILE='mysqlbin.具体数字',MASTER_LOG_POS=具体值;
+
+start slave;启动从服务器复制功能
+
+**********************测试主从复制是否成功
+
+show slave status\G
+
+下面两个参数都是yes，则说明主从配置成功！
+
+Slave_IO_Running:Yes
+Slave_SQL_Running:Yes
+
+主机新建库、新建表、insert记录，从机复制
+
+停止从服务器复制功能
+
+stop slave;
+
+
+**********************从机可以修改主机的数据?
+可以
+
+show variables like '%read_only%';
+
+set global read_only=1;限制从机不可以写，但是无法限制root用户
+
+创建一个普通用户
+grant select,update,insert,delete on *.* zhang33@localhost identified by '123123';
+
+mysql -uzhang33 -p123123;
+
+但是我们限制从机的写操作是在程序中限制的。
+读写分离：
+spring route路由，来区分写操作和读操作，然后选择性分发给从机还是分发给主机。（落伍了）
+
+我们现在有一个中间件来处理读写分离：MyCat

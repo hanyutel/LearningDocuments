@@ -1,0 +1,38 @@
+********************************************触发器(Trigger)***************************************
+需求：我要查询所有的员工，并显示领导。
+这样每次都要连接查询，太耗性能了。
+
+所以我们可以在emp中添加一个ceoname字段
+alter table emp add ceoname varchar(200);
+
+update emp a
+left join dept b on a.deptId=b.id
+left join emp c on b.ceo=c.id
+set a.ceoname=c.name
+
+以后查询可以直接查询emp表。
+但是，ceo有可能会改变，怎么办？(冗余字段与真实字段不一致，冗余字段为了提高性能)
+
+那么我们就有一个新的需求了，当dept表的ceo更新时，更改empde ceoname字段。
+
+delimiter $$
+create trigger trig_update_ceo
+after update on t_dept
+for each row
+begin
+
+update emp a
+left join dept b on a.deptId=b.id
+left join emp c on b.ceo=c.id
+set a.ceoname=c.name
+where a.deptid=new.id;  	#new/old
+
+end $$
+
+适用场景：冗余数据同步
+
+********************************************注意***************************************
+①：触发器确实方便，但是不利于维护
+②：影响数据库的性能
+③：这种非程序出发的写操作很难被日志追踪
+④：触发了某种事件的表，不能利用触发器对自己做操作

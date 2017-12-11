@@ -1,0 +1,113 @@
+****************************************MyCat的介绍**********************************
+是数据库的中间件，前身是阿里的cobar
+
+****************************************MyCat的作用**********************************
+1、读写分离
+2、数据分片
+	垂直拆分
+	水平拆分
+	垂直+水平拆分
+3、多数据源整合
+****************************************MyCat的原理**********************************
+
+MyCat的原理中最重要的一个动词时“拦截”，它拦截了用户发送过来的 sql语句，首先对sql语句
+做了一些特定的分析：如分片分析、路由分析、读写分离分析、缓存分析等，然后将此sql发往后端
+的真是数据库，并将返回的结果做适当的处理，最终再返回给用户。
+
+把数据库的分布式从代码中解耦出来，程序员察觉不出来后台使用mycat还是mysql。
+****************************************MyCat的安装**********************************
+解压缩文件拷贝到linux下/usr/local/
+
+三个文件：
+	schema.xml	定义逻辑库，表，分片节点等内容
+	rule.xml	定义分片规则
+	server.xml	定义用户以及系统相关变量，如端口等。
+
+启动前先修改schema.xml
+
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+           <!--逻辑库    name名称,   checkSQLschema         sqlMaxLimit 末尾是否要加 limit xxx-->
+        <schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1"> </schema>
+            <!--逻辑库    name名称,   dataHost 引用的哪个dataHost      database:对应mysql的database-->
+        <dataNode name="dn1" dataHost="localhost1" database="db1" />
+        <dataHost name="localhost1" maxCon="1000" minCon="10" balance="0"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <!-- can have multi write hosts -->
+                <writeHost host="hostM1" url="localhost:3306" user="root" password="123456">
+                </writeHost>
+        </dataHost>
+</mycat:schema>
+
+再修改server.xml文件
+<user name="root">
+                <property name="password">654321</property>
+                <property name="schemas">TESTDB</property>
+</user>
+
+启动程序
+控制台启动:去mycat/bin目录下 mycat console
+后台启动:去mycat/bin目录下 mycat start
+
+启动时可能出现报错:
+域名解析失败
+报错：java.net.MalformedURLException:Local host  name unknown:java.net.UnknownHostException
+:jack.atguigu:jack.atguigu:域名解析暂时失败
+
+解决方法：
+1、用vim修改/etc/hosts文件
+	再127.0.0.1后面增加你的机器名
+2、修改后重新启动网络服务
+	service network restart
+
+登陆:
+后台管理窗口:
+mysql -uroot -pwcx -p9066 -h192.168.67.131
+命令:show @@help、show database
+
+数据窗口:
+mysql -uroot -pwcx -p8066 -h192.168.67.131
+
+****************************************MyCat实现读写分离**********************************
+schema.xml
+
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+ 
+<schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1">
+        </schema>
+        <dataNode name="dn1" dataHost="host1" database="atguigu_mc" />
+        <dataHost name="host1" maxCon="1000" minCon="10" balance="2"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1" slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm1" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+<!--读库（从库）的配置 -->
+                       <readHost host="hosts1" url="192.168.67.131:3306" user="root"
+                                   password="123123">
+                       </readHost>
+                </writeHost>
+        </dataHost>
+</mycat:schema>
+
+balance属性
+负载均衡类型，目前的取值有4 种：
+1. balance="0", 不开启读写分离机制，所有读操作都发送到当前可用的 writeHost 上。
+2. balance="1"，全部的 readHost 与 stand by writeHost 参与 select 语句的负载均衡，简单的说，当双主双从模式(M1->S1，M2->S2，并且 M1 与 M2 互为主备)，正常情况下，M2,S1,S2 都参与 select 语句的负载均衡。
+3. balance="2"，所有读操作都随机的在 writeHost、readhost 上分发。
+4. balance="3"，所有读请求随机的分发到 readhost 执行，writerHost 不负担读压力
+
+读写分离
+
+创建表
+create table t_replica 
+(    id  int auto_increment , 
+     name varchar(200) 
+);
+分别再两个库下插入
+insert into t_replica(name) values(@@hostname)
+然后在mycat下执行select * from t_replica
+

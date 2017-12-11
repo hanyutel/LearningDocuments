@@ -1,0 +1,23 @@
+每日凌晨2点备份mydb数据库脚本，并以年月为目录，以年月日为文件名，放到/backup/mysql下
+
+命令行备份
+mysqldump是一个可执行的程序
+mysqldump -uroot -wcx mydb>/root/mydb.sql
+
+保存到指定的目录（动态）
+shell脚本
+`着重号，可以将命令括起来，用于区别字符串。
+
+创建一个脚本文件.sh
+然后将shell脚本粘贴进去
+
+./backup.sh 权限不足
+sh backup.sh 管理员执行
+
+定时执行
+service crond linux的一个计时器服务
+
+crontab -e
+
+* * * * * sh /backup/backup.sh
+分时天月周

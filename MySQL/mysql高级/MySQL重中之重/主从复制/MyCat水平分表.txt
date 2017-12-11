@@ -1,0 +1,177 @@
+****************************************schema.xml配置**********************************
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+ 
+        <schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1">
+                <table name="customer" dataNode="dn2" ></table>
+                <table name="orders" dataNode="dn1,dn2"  rule="mod_rule" ></table>
+        </schema>
+        <dataNode name="dn1" dataHost="host1" database="atguigu_mc" />
+        <dataNode name="dn2" dataHost="host2" database="atguigu_sm" />
+        <dataHost name="host1" maxCon="1000" minCon="10" balance="2"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm1" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+                <!--       <readHost host="hosts1" url="192.168.67.131:3306" user="root"
+                                   password="123123">
+                       </readHost>-->
+                </writeHost>
+        </dataHost>
+        <dataHost name="host2" maxCon="1000" minCon="10" balance="0"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm2" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+                </writeHost>
+        </dataHost>
+ 
+ 
+
+****************************************rule.xml配置**********************************
+ 
+<tableRule name="mod_rule">
+             <rule>
+                        <columns>id</columns>
+                        <algorithm>mod-long</algorithm>
+               </rule>
+       </tableRule>
+ 
+ 
+<function name="mod-long" class="io.mycat.route.function.PartitionByMod">
+                <!-- how many data nodes -->
+                <property name="count">2</property>
+        </function>
+ 
+
+****************************************跨库join:全局表**********************************
+全局表
+设定为全局的表，会直接复制给每个数据库一份，所有写操作也会同步给多个库。
+所有全局表一般不能时大数据表或者更新频繁的表
+一般是字典表或者系统表为宜
+schema.xml
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+ 
+        <schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1">
+                <table name="customer" dataNode="dn2" ></table>
+                <table name="orders" dataNode="dn1,dn2"  rule="mod_rule" ></table>
+                 <table name="dict_order_type" dataNode="dn1,dn2" type="global" ></table>
+        </schema>
+        <dataNode name="dn1" dataHost="host1" database="atguigu_mc" />
+        <dataNode name="dn2" dataHost="host2" database="atguigu_sm" />
+        <dataHost name="host1" maxCon="1000" minCon="10" balance="2"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm1" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+                <!--       <readHost host="hosts1" url="192.168.67.131:3306" user="root"
+                                   password="123123">
+                       </readHost>-->
+                </writeHost>
+        </dataHost>
+        <dataHost name="host2" maxCon="1000" minCon="10" balance="0"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm2" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+                </writeHost>
+        </dataHost>
+ 
+
+
+
+ 
+
+****************************************跨库join:ER表**********************************
+为了相关联的表的行尽量分在一个库下
+
+schema.xml
+
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+ 
+        <schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1">
+                <table name="customer" dataNode="dn2" ></table>
+                <table name="orders" dataNode="dn1,dn2"  rule="mod_rule" >
+                    <childTable name="order_detail" primaryKey="id" joinKey="order_id" parentKey="id" />
+                </table>
+                <table name="dict_status" dataNode="dn1,dn2" type="global" ></table>
+        </schema>
+        <dataNode name="dn1" dataHost="host1" database="atguigu_mc" />
+        <dataNode name="dn2" dataHost="host2" database="atguigu_sm" />
+        <dataHost name="host1" maxCon="1000" minCon="10" balance="2"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm1" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+                <!--       <readHost host="hosts1" url="192.168.67.131:3306" user="root"
+                                   password="123123">
+                       </readHost>-->
+                </writeHost>
+        </dataHost>
+        <dataHost name="host2" maxCon="1000" minCon="10" balance="0"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm2" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+                </writeHost>
+        </dataHost>
+ 
+</mycat:schema>
+****************************************MyCat的介绍**********************************
+
+****************************************MyCat的介绍**********************************
+
+****************************************跨库join:federated引擎**********************************
+oracle dblink
+
+开启引擎
+
+修改my.cnf
+在[mysqld]下增加一行
+federated
+然后重启mysql
+
+建表
+
+ CREATE TABLE customer(
+    id INT AUTO_INCREMENT,
+    NAME VARCHAR(200),
+    PRIMARY KEY(id)
+)ENGINE=FEDERATED  CONNECTION="mysql://root:123123@192.168.67.141:3306/myorder/customer"
+
+使用时的注意事项
+  1. 本地的表结构必须与远程的完全一样。
+ 
+  2.远程数据库目前仅限MySQL
+ 
+  3.不支持事务
+ 
+  4.不支持表结构修改 ddl
+
+最大的问题:
+性能
+
+****************************************全局序列**********************************
+三种方式
+本地文件	不推荐
+数据库方式	高并发性能低 
+时间戳方式	比较长
+自动生成	根据业务逻辑组合，可以利用redis的单线程原子性,incr来生成序列
+****************************************时间戳方式**********************************
+插入语句
+insert into `orders`(id,amount,customer_id,order_type) values(next value for MYCATSEQ_GLOBAL,1000,103,10);
+
+server.xml
+
+ <property name="sequnceHandlerType">2</property>
+ 
+ 
+0-本地文件方式
+1-数据库方式
+2-时间戳方式：
+****************************************MyCat的介绍**********************************

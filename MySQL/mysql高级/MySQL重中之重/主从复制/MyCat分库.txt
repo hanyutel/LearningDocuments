@@ -1,0 +1,73 @@
+****************************************如何选择分库表**********************************
+#客户表  rows:20万 
+CREATE TABLE customer(
+    id INT AUTO_INCREMENT,
+    NAME VARCHAR(200),
+    PRIMARY KEY(id)
+)
+ 
+ 
+#订单表   rows:600万
+CREATE TABLE orders(
+    id INT AUTO_INCREMENT,
+    order_type INT,
+    customer_id INT,
+    amount DECIMAL(10,2),
+    PRIMARY KEY(id)  
+); 
+ 
+ 
+#订单详细表     rows:600万
+CREATE TABLE orders_detail(
+    id INT AUTO_INCREMENT,
+    detail VARCHAR(2000),
+    order_id INT,
+    PRIMARY KEY(id)
+);
+ 
+ 
+#订单状态字典表   rows:20
+CREATE TABLE dict_order_type(
+    id INT AUTO_INCREMENT,
+    order_type VARCHAR(200),
+    PRIMARY KEY(id)
+);
+ 
+ 
+ 
+ select o.*,od.detail,d.order_type 
+from orders  o 
+inner join orders_detail  od on orders.id =orders_detail.order_id  
+ inner join dict_order_type d on o.order_type=d.id  
+where o.customer_id=xxxx
+
+
+****************************************MyCat的配置**********************************
+<mycat:schema xmlns:mycat="http://io.mycat/">
+ 
+        <schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1">
+                <table name="customer" dataNode="dn2" ></table>
+        </schema>
+        <dataNode name="dn1" dataHost="host1" database="atguigu_mc" />
+        <dataNode name="dn2" dataHost="host2" database="atguigu_sm" />
+        <dataHost name="host1" maxCon="1000" minCon="10" balance="2"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm1" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+                       <readHost host="hosts1" url="192.168.67.131:3306" user="root"
+                                   password="123123">
+                       </readHost>
+                </writeHost>
+        </dataHost>
+        <dataHost name="host2" maxCon="1000" minCon="10" balance="0"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <writeHost host="hostm2" url="192.168.67.1:3306" user="root"
+                                   password="123123">
+                </writeHost>
+        </dataHost>
+ 
+</mycat:schema>
+ 
+
