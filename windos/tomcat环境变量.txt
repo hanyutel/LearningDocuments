@@ -1,0 +1,22 @@
+key:CATALINA_HOME
+value:路径
+
+Path:value:%CATALINA_HOME%\bin
+
+启动:catalina start
+关闭:catalina stop
+
+还有直接点击bin目录下的startup.bat
+
+如果想要点击tomcat7w.exe启动
+还需要在bin目录下进入cmd
+然后执行
+
+service.bat install
+
+这就还可以在cmd中输入
+
+启动
+startup.bat
+关闭
+shutdown.bat
