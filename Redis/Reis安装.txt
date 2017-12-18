@@ -1,43 +1,45 @@
-LinuxÉÏ°²×°Redis
-redis-3.2.5.tar.gzÑ¹Ëõ°ü½âÑ¹µ½optÄ¿Â¼ÏÂ¡£
+Linuxä¸Šå®‰è£…Redis
+redis-3.2.5.tar.gzå‹ç¼©åŒ…è§£å‹åˆ°optç›®å½•ä¸‹ã€‚
 
-°²×°·½Ê½:
-rpm yum ½âÑ¹¼´ÓÃ
-ÁíÒ»ÖÖ·½Ê½£ºÔ´Âë±àÒë°²×°
-ÔÚredis-3.2.5ÎÄ¼şÏÂ¼´¿É
-±àÒëmake
-Èç¹ûmake±¨´í¾Íyum install gcc-c++°²×°±àÒëÆ÷
-Èç¹ûÌáÊ¾jemalloc/jemalloc.hÃ»ÓĞÄÇ¸öÎÄ¼ş¾ÍÖ´ĞĞÏÂÃæµÄ:
-ÇåÀíc++±àÒëÆ÷make distclean ÔÙmake
-±àÒëÖ®ºó°²×°
+å®‰è£…æ–¹å¼:
+rpm yum è§£å‹å³ç”¨
+å¦ä¸€ç§æ–¹å¼ï¼štarå‹ç¼©æ–‡ä»¶
+tar -zxvf ...
+æºç ç¼–è¯‘å®‰è£…
+åœ¨redis-3.2.5æ–‡ä»¶ä¸‹å³å¯
+ç¼–è¯‘make
+å¦‚æœmakeæŠ¥é”™å°±yum install gcc-c++å®‰è£…ç¼–è¯‘å™¨
+å¦‚æœæç¤ºjemalloc/jemalloc.hæ²¡æœ‰é‚£ä¸ªæ–‡ä»¶å°±æ‰§è¡Œä¸‹é¢çš„:
+æ¸…ç†c++ç¼–è¯‘å™¨make distclean å†make
+ç¼–è¯‘ä¹‹åå®‰è£…
 make install
-°²×°µÄÄ¿Â¼
+å®‰è£…çš„ç›®å½•
 /usr/local/bin
 
-./redis-serverÆô¶¯·şÎñÆ÷
-./¿ÉÒÔÊ¡ÂÔµÄÄ¿Â¼:
-°Ñredis·şÎñ±äÎªºóÌ¨Ö´ĞĞ£º
+./redis-serverå¯åŠ¨æœåŠ¡å™¨
+./å¯ä»¥çœç•¥çš„ç›®å½•:
+æŠŠredisæœåŠ¡å˜ä¸ºåå°æ‰§è¡Œï¼š
 /opt/redis -3.2.5
-redis.confÅäÖÃÎÄ¼ş
-daemonize noÊØ»¤½ø³Ì(ºóÌ¨½ø³Ì)ÀıÈçmysqld.exe¾ÍÊÇºóÌ¨½ø³Ì
+redis.confé…ç½®æ–‡ä»¶
+daemonize noå®ˆæŠ¤è¿›ç¨‹(åå°è¿›ç¨‹)ä¾‹å¦‚mysqld.exeå°±æ˜¯åå°è¿›ç¨‹
 daemonize yes
-µ±Ç°µÄÅäÖÃÎÄ¼şÆô¶¯
+å½“å‰çš„é…ç½®æ–‡ä»¶å¯åŠ¨
 redis -server redis.conf
 ps -ef|grep redis
-·ÃÎÊ
+è®¿é—®
 redis-cli
 ping 
-ÏÔÊ¾PONG
+æ˜¾ç¤ºPONG
 set k1 v1
 set k2 v2
 keys *
-ÔÚclientÖĞ£º¹Ø±Õshutdown
+åœ¨clientä¸­ï¼šå…³é—­shutdown
 
-²»ÔÚclientÀï:redis-cli shutdownÀûÓÃ¿Í»§¶Ë½«·şÎñÆ÷¹Ø±Õ¡£
+ä¸åœ¨clienté‡Œ:redis-cli shutdownåˆ©ç”¨å®¢æˆ·ç«¯å°†æœåŠ¡å™¨å…³é—­ã€‚
 
-Èç¹ûÓĞÃÜÂë£ºÏëÒªÔÚredis-cliÍâÃæ¹Ø±Õredis-server£¬Ê¹ÓÃ
+å¦‚æœæœ‰å¯†ç ï¼šæƒ³è¦åœ¨redis-cliå¤–é¢å…³é—­redis-serverï¼Œä½¿ç”¨
 redis-cli -a wcx shutdown
-µÇÂ½reids-cliºó£¬Èç¹ûÒª½øĞĞ²Ù×÷£¬ÒªÏÈµÇÂ½:auth wcx
+ç™»é™†reids-cliåï¼Œå¦‚æœè¦è¿›è¡Œæ“ä½œï¼Œè¦å…ˆç™»é™†:auth wcx
 
 
 
