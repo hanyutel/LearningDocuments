@@ -1,0 +1,49 @@
+***********************************GitHub上的SSH**************************************
+SSH方式提交代码，不用重复输入邮箱和密码
+
+首先查看有没有生成.ssh文件
+
+cd ~
+
+cd .ssh
+如果提示:No such file or directory就是没有生成文件,如果生成了，我们就将它删除。
+
+然后
+
+ssh-keygen -t rsa -C 1271176049@qq.com
+
+一路回车
+
+然后
+
+cd ~
+
+cd .ssh
+
+ll
+
+cat id_rsa.pub
+
+将内容粘贴下来，不要粘贴空格。
+然后登陆上你的github，点击setting，然后点击ssh and GPG keys,
+然后新建ssh key
+
+title随便起名
+
+将生成的密钥复制到下面，然后点击创建。OK了
+
+到我们的本地工作空间里，打开git Bash
+
+新建一个变量,后面的连接是你项目的ssh连接
+
+git remote add wendangssh git@github.com:1271176049/LearningDocuments.git
+
+git add .
+
+git commit -m"github ssh"
+
+git push wendangssh master
+
+第一次需要输入一个yes
+
+成功了
