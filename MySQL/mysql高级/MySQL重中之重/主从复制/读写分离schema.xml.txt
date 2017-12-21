@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+        <!--    这里配置值逻辑库，库里指定数据节点，由于我们没有分库分表，所以数据节点是一个 -->
+        <schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1">
+        </schema>
+        <!--这里我们要配置数据节点，dataHost是name名，database是数据库的名字-->
+        <dataNode name="dn1" dataHost="host1" database="mydb_0725" />
+        <!--这里配置dataHost，balance的值：0不读写分离，1主机和从机对读操作负载均衡(只是双柱双从模式下，有一个主机可能是不能读的)，2主机和从机对读操作随机分配，3标准的读写分离-->
+        <dataHost name="host1" maxCon="1000" minCon="10" balance="2"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <!-- can have multi write hosts配置主机：写操作 ，这里我们使用的是具有root权限的用户登陆的主机，并且是远程登陆的方式-->
+                <writeHost host="hostM1" url="192.168.19.37:3306" user="root"
+                                   password="wcx"><!--我们并没有使用主机中添加的具有读写权限的账号去登陆主机，因为这里是mycat，那个账号是在从机中使用的。-->
+                        <!-- can have multi read hosts配置从机：读操作 ，这里我们使用root用户登陆从机，同样是远程登陆的方式-->
+                        <readHost host="hostS2" url="192.168.19.115:3306" user="root" password="wcx" />
+                </writeHost>
+        </dataHost>
+</mycat:schema>

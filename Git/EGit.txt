@@ -1,0 +1,16 @@
+在eclipse中，点击help,点击about eclipse,查看是否有EGit插件。
+
+如果没有，菜单栏Help -> Install New Software...，在Work with中输入 
+http://download.eclipse.org/egit/updates，勾选Eclipse Git Team Provider和JGit，
+点击Next，进入安装，重启Eclipse，安装完成。
+
+
+配置用户名、email
+
+windows  preferences team git configuration
+点击open
+
+检查ssh key
+
+在preferences中搜索SSH2
+

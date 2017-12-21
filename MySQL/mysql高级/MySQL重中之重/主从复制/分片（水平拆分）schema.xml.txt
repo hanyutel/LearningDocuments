@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+        <!--    这里配置值逻辑库，库里指定数据节点，由于我们没有分库分表，所以数据节点是一个 -->
+        <schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="dn1">
+                <table name="customer" dataNode="dn2"/>
+                <table name="orders" dataNode="dn1,dn2" rule="customer_id_mod_rule" />
+        </schema>
+        <!--这里我们要配置数据节点，dataHost是name名，database是数据库的名字-->
+        <dataNode name="dn1" dataHost="host1" database="order_0725" />
+        <dataNode name="dn2" dataHost="host2" database="order_0725" />
+        <!--这里配置dataHost，balance的值：0不读写分离，1主机和从机对读操作负载均衡(只是双柱双从模式下，有一个主机可能是不能读的)，2主机和从机对读操作随机分配，3标准的读写分离-->
+        <dataHost name="host1" maxCon="1000" minCon="10" balance="2"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <!-- can have multi write hosts配置主机：写操作 ，这里我们使用的是具有root权限的用户登陆的主机，并且是远程登陆的方式-->
+                <writeHost host="hostM1" url="192.168.19.37:3306" user="root"
+                                   password="wcx">
+                </writeHost>
+        </dataHost>
+        <dataHost name="host2" maxCon="1000" minCon="10" balance="2"
+                          writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <!-- can have multi write hosts配置主机：写操作 ，这里我们使用的是具有root权限的用户登陆的主机，并且是远程登陆的方式-->
+                <writeHost host="hostM2" url="192.168.19.115:3306" user="root"
+                                   password="wcx">
+                </writeHost>
+        </dataHost>
+</mycat:schema>
+注意：还要修改rule.xml，要指定规则，规则名就是customer_id_mod_rule,里面要指定字段customer_id,还要指定算法mod-long,要记得修改算法的配置
