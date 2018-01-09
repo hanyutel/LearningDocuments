@@ -1,0 +1,108 @@
+搜索平台，通过倒排索引的方式进行搜索
+1、启动命令:java -jar start.jar 
+2、指定启动某个项目:java -Dsolr.solr.home=项目名 -jar start.jar
+
+配置数据集合 
+在数据集合中配置搜索内容字段 
+在数据集合中配置搜索的方式
+
+在example目录下创建一个文件夹（项目）atguigu0725
+然后在atguigu0725文件夹下创建一个sku的文件夹(数据集合，我们还可以创建一个attr的文件夹)
+将solr案例项目的solr.xml文件copy到atguigu0725下面,存放的是项目启动加载的信息
+然后到solr案例项目中的collection1中copy配置文件core.properties到你的sku文件下面
+core.properties配置文件中存储的是你的数据集合的名称，例如:name=sku，就代表到你的sku文件下加载数据
+然后在sku数据集合的文件夹下创建一个data文件夹，这个文件夹是用来导入数据的文件夹
+再创建一个conf文件夹，配置数据字段和检索方式的文件夹
+
+然后在案例中的conf文件夹下的schema.xml和solrconfig.xml文件copy到你的conf文件夹下
+
+在schema.xml中配置倒排索引的字段和id，然后配置分词器
+
+里面有solr支持的数据类型，不支持我们创建的类的对象类型，可以设置成json来弄。
+
+保留关键字_version_和_root_，这两个配置告诉你这两字段不能用了。
+
+schema.xml配置的是你数据集合的保存字段，是和导入数据有关的。
+
+solrconfig.xml配置的是你数据集合的搜索方式
+df默认匹配/搜索的字段
+
+默认加载一些配置文件，例如elevate.xml扩展配置,copy到conf下
+
+
+可以启动solr服务了，但是没有数据
+
+创建一个springmvc+mybatis的项目，其实mybatis的项目就行
+导入solr的依赖，然后将javaBean中的字段使用@Field("id")注解进行与solr匹配
+
+然后使用SqlSessionFactory获取sqlSession对象，然后调用查询方法
+
+
+HttpSolrServer httpSolrServer = new HttpSolrServer(
+				PropertiesUtils.getProperties("solr.properties", "sku_solr"));
+		httpSolrServer.setParser(new XMLResponseParser());
+		httpSolrServer.setConnectionTimeout(1000 * 10);
+http://localhost:8983/solr/sku就是配置文件中的地址
+
+httpSolrServer.addBeans(查询的结果list); httpSolrServer.commit();
+
+
+查询
+SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("sku_mch:小明");
+		solrQuery.add(solrQuery);
+		QueryResponse queryResponse = httpSolrServer.query(solrQuery);
+		List<OBJECT_T_MALL_SKU_KEYWORDS> solr_list = queryResponse.getBeans(OBJECT_T_MALL_SKU_KEYWORDS.class);
+
+还可以设置数据条数solrQuery.setRows(50);
+
+solr不支持中文分词，怎么办？
+IKAnalyzer.jar放到solr的服务器中（solr-webapp）下面的lib包下
+它是一个中文分词的工具包
+
+如果你没有导入jar包，还配置了中文的分词器，那么solr服务器在启动的时候会报错
+
+
+Caused by: java.lang.ClassNotFoundException: org.wltea.analyzer.lucene.IKAnalyzer
+
+中文分词器
+	<fieldType name="text_ik" class="solr.TextField">
+		<analyzer class="org.wltea.analyzer.lucene.IKAnalyzer"/>
+	</fieldType>
+字段中的type类型不是string了，是你配置的分词器的name
+<field name="sku_mch" type="text_ik" indexed="true" stored="true" required="false" multiValued="false" />
+
+将solr的查询项目做成restfull风格的，然后在client使用httpget进行调用
+
+我们设置组合字段
+copy_item，因为我们的项目不可能只是搜索一个sku_mch的字段吧。
+组合字段是并集的范围
+
+<solrQueryParser>设置组合字段的查询结果是交集还是并集
+
+在solrconfig.xml配置文件中修改默认的检索字段为copy_item
+
+public static String doGet(String url) throws Exception {
+
+		// 创建Httpclient对象
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+
+		// 创建http GET请求
+		HttpGet httpGet = new HttpGet(url);
+
+		CloseableHttpResponse response = null;
+		try {
+			// 执行请求
+			response = httpclient.execute(httpGet);
+			// 判断返回状态是否为200
+			if (response.getStatusLine().getStatusCode() == 200) {
+				return EntityUtils.toString(response.getEntity(), "UTF-8");
+			}
+		} finally {
+			if (response != null) {
+				response.close();
+			}
+			httpclient.close();
+		}
+		return null;
+	}

@@ -1,0 +1,23 @@
+1、当请求过来，首先到SpringDispatcherServelt的拦截器url-     
+   pattern，它会去找对应的映射,就是在Controller中配置的
+   @RequestMapping("index"),如果不存在映射，那么判断是否配 
+   置了<mvc:default-servlet-handler/>静态资源的处理器，如果
+   不存在，那么在控制台:no mapping found for http request  
+   with URI xxxxin dispatcherServlet,同时页面404，如果配置  
+  了静态资源处理器，那么就去找目标资源，如果找不到就404。
+
+2、如果找到对应的映射地址，那么由HandlerMapping获取 
+   HandlerExecptionChain对象,然后获取HandlerAdapter对象,
+   然后调用拦截器的preHandle方法，然后调用目标handler的目标 
+   方法得到ModeAndView对象,然后调用拦截器的postHandler方法
+
+3、判断是否存在异常，如果存在异常就由HandlerExecptionResolver
+   组件处理异常，得到新的ModelAndView对象，由ViewResolver组件
+   根据ModelAndView对象得到实际的View
+
+4、如果不存在异常就直接由ViewResolver组件根据ModelAndView对象
+  得到实际的View
+
+5、渲染视图
+
+6、调用拦截器的afterCompletion方法

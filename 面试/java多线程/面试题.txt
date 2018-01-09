@@ -1,0 +1,24 @@
+1、多线程的状态，6种
+new 创建
+runnable 运行
+blocked 阻塞
+waiting 等待
+timed_waiting 具有时间的等待
+terminated 死亡
+
+一个线程对象被创建，new状态
+一个线程被start，可能是就绪状态(new)，如果被cpu调度，那么就变成
+    了runnable状态
+一个线程阻塞 join ，等调用的线程走完再走，变成了blocked状态
+一个线程被waite，那么就变为了waiting状态
+一个线程被seelp，那么就变成了timed_waiting状态
+一个线程结束了，或者异常了，就变成了terminated状态
+
+2、seelp与waite的区别?
+
+seelp不释放锁资源，是timed_waiting状态，会自动唤醒,
+是Thread类中的类方法（静态方法）。
+
+waite释放锁资源，是waiting状态，不会自动唤醒，需要
+别的线程notify或者notifyall才能唤醒，并且是Object中的实例方法。
+

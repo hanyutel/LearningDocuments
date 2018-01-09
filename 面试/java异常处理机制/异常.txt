@@ -1,0 +1,22 @@
+1、说出5个异常
+NullPointException
+ArrayIndexOutBoundsException
+ClassCastException
+ClassNotFoundException
+IOException
+算数异常
+IllegalThreadStateException，线程状态异常，重复start
+illegal	英[I‘li:gl] 
+
+
+java.util.ConcurrentModificationException并发修改异常
+并发情况下，一个线程正在使用一个ArrayList的迭代器迭代，
+这个时候另一个线程修改了这个ArrayList，那么处于保护，
+会抛出这个异常。
+
+
+java.lang.StackOverflowError
+栈溢出，方法的递归调用
+
+java.lang.OutOfMemoryError
+堆溢出，也成为内存溢出,死循环中不停创建对象，并一直在外面持有它的引用。
