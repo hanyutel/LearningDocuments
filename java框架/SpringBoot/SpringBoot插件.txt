@@ -1,0 +1,18 @@
+
+********************************************Eclipse安装Spring Boot插件*************************************
+查看eclipse版本
+方式一：
+eclipse的解压目录：.eclipseproduct文件打开
+方式二：
+eclipse的help，选择第一个图标，也可以查看eclipse的版本
+
+然后到https://spring.io/tools/sts/all网站上查看你的eclipse版本对应的springsource-tool-suite的版本
+如果没有直接复制一个，然后修改版本就行
+
+到eclipse界面Help->Install New Software
+然后将网址粘贴到work  with上，然后回车，然后选择.../Spring IDE所有插件
+然后将自动更新选项去掉，然后next
+
+然后一路ok
+
+

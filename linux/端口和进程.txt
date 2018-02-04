@@ -25,3 +25,6 @@ kill
 kill pid 通过pid杀死进程
 kill -9 pid 强制杀死进程
 killall name 通过进程的名字杀死进程
+
+******开放linux访问的端口，默认有22端口
+/etc/sysconfig/iptables

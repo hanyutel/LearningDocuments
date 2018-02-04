@@ -1,0 +1,8 @@
+JIRA		bug管理工具
+MockUpCreator	原型设计工具(界面)
+PowerDesigner	数据库设计:表结构设计
+EZDML		数据库设计:表结构设计
+SQLyog		数据库图形化客户端Client
+Navicat		数据库图形化客户端Client
+Rational_Rose	UML建模工具:用例图、时序图、流程图、类图
+
