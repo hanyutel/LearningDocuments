@@ -1,7 +1,7 @@
+(SVN地址)
 湖北项目
 https://csvn.hollycrm.com:8081/crmm/platform/wx-hubei-tmh
 https://csvn.hollycrm.com:8081/crmm/platform/hubei-tmh
-http://qc.hollycrm.com:8888/secure/Dashboard.jspa
 天津项目
 https://csvn.hollycrm.com:8081/crmm/product/tianjin-pt-sj/pt/trunk/tianjin-sj
 
@@ -16,3 +16,6 @@ wangcx1@hollycrm.com
 JIRA BUG库账号和密码
 账号:wangcx1
 密码:wangcx1_20220Az
+
+(JIRA地址)
+http://qc.hollycrm.com:8888/secure/Dashboard.jspa
