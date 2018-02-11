@@ -1,0 +1,18 @@
+ºş±±ÏîÄ¿
+https://csvn.hollycrm.com:8081/crmm/platform/wx-hubei-tmh
+https://csvn.hollycrm.com:8081/crmm/platform/hubei-tmh
+http://qc.hollycrm.com:8888/secure/Dashboard.jspa
+Ìì½òÏîÄ¿
+https://csvn.hollycrm.com:8081/crmm/product/tianjin-pt-sj/pt/trunk/tianjin-sj
+
+SVNÕËºÅºÍÃÜÂë
+ÕËºÅ:wangcx1
+ÃÜÂë:SN99a9Nl
+
+ÓÊÏä(Ğ¡ÃØ)ÕËºÅºÍÃÜÂë
+wangcx1@hollycrm.com
+123abc
+
+JIRA BUG¿âÕËºÅºÍÃÜÂë
+ÕËºÅ:wangcx1
+ÃÜÂë:wangcx1_20220Az
