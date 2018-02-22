@@ -21,3 +21,7 @@ JIRA BUG¿âÕËºÅºÍÃÜÂë
 
 (JIRAµØÖ·)
 http://qc.hollycrm.com:8888/secure/Dashboard.jspa
+
+ºØÁú
+ÕËºÅ£ºhelong
+ÃÜÂë£ºk/\=sxPR
