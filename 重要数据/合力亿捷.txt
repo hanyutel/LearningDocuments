@@ -4,6 +4,8 @@ https://csvn.hollycrm.com:8081/crmm/platform/wx-hubei-tmh
 https://csvn.hollycrm.com:8081/crmm/platform/hubei-tmh
 天津项目
 https://csvn.hollycrm.com:8081/crmm/product/tianjin-pt-sj/pt/trunk/tianjin-sj
+山东项目框架纯净版
+https://csvn.hollycrm.com:8081/crmm/sdcrm/sd-demo
 
 SVN账号和密码
 账号:wangcx1
